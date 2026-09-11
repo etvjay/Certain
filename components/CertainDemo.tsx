@@ -34,10 +34,8 @@ export function CertainDemo() {
 
   const receipt = useMemo(() => evaluation ? createVerificationReceipt(evaluation, verifications) : null, [evaluation, verifications]);
 
-  async function beginCapture(nextMode: "capture" | "repeat", field: "amount" | null = null) {
+  async function beginCapture() {
     setError(null);
-    setMode(nextMode);
-    setRepeatField(field);
     await recorder.start();
   }
 
@@ -67,11 +65,21 @@ export function CertainDemo() {
       };
       setVerifications((items) => [...items, evidence]);
       setEvaluation(applyVerification(evaluation, evidence));
+      if (matched) {
+        setMode("capture");
+        setRepeatField(null);
+      }
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Capture failed");
     } finally {
       setBusy(false);
     }
+  }
+
+  function armAmountRepeat() {
+    setMode("repeat");
+    setRepeatField("amount");
+    setError(null);
   }
 
   function confirmInvoice() {
@@ -101,16 +109,16 @@ export function CertainDemo() {
       <section className="capture card">
         <div className="capture-copy">
           <span>{mode === "repeat" ? "Repeat the amount only" : "Dictate a payment instruction"}</span>
-          <p>{mode === "repeat" ? "Example: fifteen thousand dollars" : "Example: Pay Acme Labs fifteen thousand dollars against invoice INV-14892 from Growth next Friday."}</p>
+          <p>{mode === "repeat" ? "Hold the button and say only the amount, for example: fifteen thousand dollars." : "Example: Pay Acme Labs fifteen thousand dollars against invoice INV-14892 from Growth next Friday."}</p>
         </div>
         <button
           className={recorder.recording ? "mic recording" : "mic"}
           disabled={busy}
-          onPointerDown={() => beginCapture(mode, repeatField)}
+          onPointerDown={beginCapture}
           onPointerUp={finishCapture}
           onPointerLeave={() => recorder.recording && finishCapture()}
         >
-          {busy ? "Working…" : recorder.recording ? "Release" : "Hold to speak"}
+          {busy ? "Working…" : recorder.recording ? "Release" : mode === "repeat" ? "Hold to verify" : "Hold to speak"}
         </button>
         {error && <p className="error">{error}</p>}
       </section>
@@ -139,7 +147,7 @@ export function CertainDemo() {
                   <span className={`field-status ${field.status}`}>{statusLabel[field.status]}</span>
                   {field.violations.map((violation) => <p className="violation" key={violation}>{violation}</p>)}
                   {field.field === "amount" && field.status === "requires_verification" && (
-                    <button className="secondary" onClick={() => beginCapture("repeat", "amount")}>Repeat amount</button>
+                    <button className="secondary" onClick={armAmountRepeat}>Verify by repeating amount</button>
                   )}
                   {field.field === "invoiceId" && field.status === "requires_verification" && (
                     <button className="secondary" onClick={confirmInvoice}>Confirm invoice</button>
