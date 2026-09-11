@@ -9,7 +9,7 @@ export const paymentInstructionContract = {
     verification: "repeat_match" as const,
   },
   invoiceId: {
-    pattern: /^INV-\d{5}$/,
+    pattern: /^INV-[0-9]{5}$/,
     verification: "required" as const,
   },
   vendor: {
