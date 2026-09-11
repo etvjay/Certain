@@ -2,7 +2,8 @@ import { paymentInstructionContract } from "./contract";
 import { normalizeMoney } from "./normalize";
 import type { PaymentInstruction } from "./types";
 
-const numericAmountPattern = /(?:\$\s*)?([\d,]+(?:\.\d{1,2})?)\s*(?:dollars?|usd)\b/i;
+const dollarAmountPattern = /\$\s*([\d,]+(?:\.\d{1,2})?)/i;
+const suffixedAmountPattern = /\b([\d,]+(?:\.\d{1,2})?)\s*(?:dollars?|usd)\b/i;
 const spokenAmountPattern = /\b((?:(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|and)[\s-]+)+)dollars?\b/i;
 const invoicePattern = /\bINV[-\s]?([A-Z0-9]{1,12})\b/i;
 
@@ -12,8 +13,11 @@ function findAllowed(text: string, values: readonly string[]): string | undefine
 }
 
 function extractAmount(text: string) {
-  const numeric = text.match(numericAmountPattern);
-  if (numeric) return normalizeMoney(numeric[1]) ?? undefined;
+  const dollar = text.match(dollarAmountPattern);
+  if (dollar) return normalizeMoney(dollar[1]) ?? undefined;
+
+  const suffixed = text.match(suffixedAmountPattern);
+  if (suffixed) return normalizeMoney(suffixed[1]) ?? undefined;
 
   const spoken = text.match(spokenAmountPattern);
   if (spoken) return normalizeMoney(spoken[1]) ?? undefined;
