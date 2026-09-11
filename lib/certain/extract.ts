@@ -2,12 +2,23 @@ import { paymentInstructionContract } from "./contract";
 import { normalizeMoney } from "./normalize";
 import type { PaymentInstruction } from "./types";
 
-const amountPattern = /(?:\$\s*)?([\d,]+(?:\.\d{1,2})?)\s*(?:dollars?|usd)?/i;
+const numericAmountPattern = /(?:\$\s*)?([\d,]+(?:\.\d{1,2})?)\s*(?:dollars?|usd)\b/i;
+const spokenAmountPattern = /\b((?:(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|and)[\s-]+)+)dollars?\b/i;
 const invoicePattern = /\bINV[-\s]?([A-Z0-9]{1,12})\b/i;
 
 function findAllowed(text: string, values: readonly string[]): string | undefined {
   const lower = text.toLowerCase();
   return values.find((value) => lower.includes(value.toLowerCase()));
+}
+
+function extractAmount(text: string) {
+  const numeric = text.match(numericAmountPattern);
+  if (numeric) return normalizeMoney(numeric[1]) ?? undefined;
+
+  const spoken = text.match(spokenAmountPattern);
+  if (spoken) return normalizeMoney(spoken[1]) ?? undefined;
+
+  return undefined;
 }
 
 export function extractPaymentInstruction(text: string): PaymentInstruction {
@@ -16,9 +27,7 @@ export function extractPaymentInstruction(text: string): PaymentInstruction {
 
   const invoiceMatch = text.match(invoicePattern);
   const invoiceId = invoiceMatch ? `INV-${invoiceMatch[1].toUpperCase()}` : undefined;
-
-  const amountMatch = text.match(amountPattern);
-  const amount = amountMatch ? normalizeMoney(amountMatch[1]) ?? undefined : undefined;
+  const amount = extractAmount(text);
 
   const nextFriday = /\bnext\s+friday\b/i.test(text) ? "next Friday" : undefined;
   const friday = !nextFriday && /\bfriday\b/i.test(text) ? "Friday" : undefined;
