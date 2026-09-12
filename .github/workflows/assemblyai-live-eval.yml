@@ -1,0 +1,129 @@
+name: AssemblyAI Live Evaluation
+
+on:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: Evaluation suite to run
+        required: true
+        default: smoke
+        type: choice
+        options:
+          - smoke
+          - prompting
+          - aliases
+          - phase1
+  push:
+    branches:
+      - eval/live
+    paths:
+      - .github/eval-trigger/**
+
+concurrency:
+  group: assemblyai-live-eval
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ASSEMBLYAI_API_KEY: ${{ secrets.ASSEMBLYAI_API_KEY }}
+      EVAL_SUITE: ${{ github.event.inputs.suite || 'phase1' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate secret
+        shell: bash
+        run: |
+          if [ -z "$ASSEMBLYAI_API_KEY" ]; then
+            echo "ASSEMBLYAI_API_KEY repository secret is not configured."
+            exit 1
+          fi
+          echo "AssemblyAI key is configured (value remains masked)."
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install project dependencies
+        run: npm install
+
+      - name: Install deterministic speech fixture generator
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq espeak-ng
+
+      - name: Generate synthetic evaluation fixtures
+        shell: bash
+        run: |
+          mkdir -p research/assemblyai/fixtures/generated
+          espeak-ng -s 145 -w research/assemblyai/fixtures/generated/payment.wav \
+            "Pay Acme Labs fifteen thousand dollars against invoice I N V one four eight nine two from Growth next Friday."
+          espeak-ng -s 145 -w research/assemblyai/fixtures/generated/domain.wav \
+            "Move the mandate into OpenRails and attach the Prism execution receipt."
+          sha256sum research/assemblyai/fixtures/generated/*.wav
+
+      - name: AAI-SYNC-001 — baseline response contract
+        if: env.EVAL_SUITE == 'smoke' || env.EVAL_SUITE == 'phase1'
+        run: |
+          npm run eval:aai:sync -- \
+            --audio research/assemblyai/fixtures/generated/payment.wav \
+            --label github-synthetic-sync-baseline
+
+      - name: AAI-PROMPT-001 — matched prompting arms
+        if: env.EVAL_SUITE == 'prompting' || env.EVAL_SUITE == 'phase1'
+        run: |
+          npm run eval:aai:prompt -- \
+            --audio research/assemblyai/fixtures/generated/domain.wav \
+            --label github-synthetic-domain \
+            --prompt "A protocol engineering discussion about OpenRails, Prism, execution mandates, and verification receipts." \
+            --keyterm OpenRails \
+            --keyterm Prism
+
+      - name: AAI-DOC-002 — model alias universal-3-5-pro
+        if: env.EVAL_SUITE == 'aliases' || env.EVAL_SUITE == 'phase1'
+        run: |
+          npm run eval:aai:sync -- \
+            --audio research/assemblyai/fixtures/generated/domain.wav \
+            --label github-alias-universal-3-5-pro \
+            --model universal-3-5-pro
+
+      - name: AAI-DOC-002 — model alias u3-sync-pro
+        if: env.EVAL_SUITE == 'aliases' || env.EVAL_SUITE == 'phase1'
+        continue-on-error: true
+        run: |
+          npm run eval:aai:sync -- \
+            --audio research/assemblyai/fixtures/generated/domain.wav \
+            --label github-alias-u3-sync-pro \
+            --model u3-sync-pro
+
+      - name: Summarize evidence inventory
+        if: always()
+        shell: bash
+        run: |
+          echo "## AssemblyAI Live Evaluation" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Suite: \`$EVAL_SUITE\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Generated evidence directories:" >> "$GITHUB_STEP_SUMMARY"
+          if [ -d research/assemblyai/evidence/runs ]; then
+            find research/assemblyai/evidence/runs -maxdepth 1 -mindepth 1 -type d -printf '- `%f`\n' | sort >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- none" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload sanitized live evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: assemblyai-live-evidence-${{ github.run_id }}
+          path: research/assemblyai/evidence/runs/
+          if-no-files-found: warn
+          retention-days: 14
