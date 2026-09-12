@@ -8,7 +8,9 @@
     "start": "next start",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "eval:aai:sync": "node research/assemblyai/experiments/sync/run-sync.mjs",
+    "eval:aai:prompt": "node research/assemblyai/experiments/prompting/compare-prompts.mjs"
   },
   "dependencies": {
     "next": "16.3.4",
