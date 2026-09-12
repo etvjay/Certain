@@ -1,0 +1,28 @@
+{
+  "corpus_id": "certain-aai-phase1-v1",
+  "truth_freeze": "2026-09-12",
+  "fixtures": [
+    {
+      "id": "AAI-FIX-001",
+      "file": "audio/ordinary-001.wav",
+      "ground_truth": "Ship the migration on Thursday and loop in Priya.",
+      "target_tokens": ["Thursday", "Priya"],
+      "target_class": "ordinary_dictation",
+      "languages": ["en"],
+      "support_status": "supported",
+      "source": "first_party_recording",
+      "notes": "Clean room, normal speaking pace."
+    },
+    {
+      "id": "AAI-FIX-002",
+      "file": "audio/identifier-001.wav",
+      "ground_truth": "Reference invoice INV-14892 for fifteen thousand dollars.",
+      "target_tokens": ["INV-14892", "fifteen thousand dollars"],
+      "target_class": "identifier_money",
+      "languages": ["en"],
+      "support_status": "supported",
+      "source": "first_party_recording",
+      "notes": "Consequential-token fixture for Certain and confidence analysis."
+    }
+  ]
+}
