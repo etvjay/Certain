@@ -5,7 +5,7 @@ import type { PaymentInstruction } from "./types";
 const dollarAmountPattern = /\$\s*([\d,]+(?:\.\d{1,2})?)/i;
 const suffixedAmountPattern = /\b([\d,]+(?:\.\d{1,2})?)\s*(?:dollars?|usd)\b/i;
 const spokenAmountPattern = /\b((?:(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|and)[\s-]+)+)dollars?\b/i;
-const invoicePattern = /\bINV[-\s]?([A-Z0-9]{1,12})\b/i;
+const invoicePattern = /\bINV\b[-\s]?([A-Z0-9]{1,12})\b/i;
 
 function findAllowed(text: string, values: readonly string[]): string | undefined {
   const lower = text.toLowerCase();
