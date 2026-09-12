@@ -9,7 +9,12 @@ export function wordsToNumber(input: string): number | null {
   const numeric = Number(input.replace(/[$,]/g, "").trim());
   if (Number.isFinite(numeric)) return numeric;
 
-  const tokens = input.toLowerCase().replace(/dollars?|usd|and|,/g, " ").split(/\s+/).filter(Boolean);
+  const tokens = input
+    .toLowerCase()
+    .replace(/\b(?:dollars?|usd|and)\b|,/g, " ")
+    .split(/\s+/)
+    .filter(Boolean);
+
   let total = 0;
   let current = 0;
   let sawNumber = false;
