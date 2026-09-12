@@ -8,8 +8,14 @@ const validText = "Pay Acme Labs $15,000 against invoice INV-14892 from Growth n
 describe("Certain payment_instruction/v1", () => {
   it("requires verification for a valid consequential instruction", () => {
     const result = evaluatePaymentInstruction({ text: validText, confidence: 0.98 });
+    expect(result.fields.map((field) => [field.field, field.status, field.violations])).toEqual([
+      ["vendor", "accepted", []],
+      ["amount", "requires_verification", []],
+      ["invoiceId", "requires_verification", []],
+      ["costCenter", "accepted", []],
+      ["dueDate", "accepted", []],
+    ]);
     expect(result.status).toBe("requires_verification");
-    expect(result.fields.find((field) => field.field === "amount")?.status).toBe("requires_verification");
   });
 
   it("blocks an amount above the application contract even when transcription is valid", () => {
