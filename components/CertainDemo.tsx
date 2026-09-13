@@ -24,6 +24,13 @@ const statusLabel: Record<string, string> = {
   blocked: "Blocked",
 };
 
+type CaptureMode = "capture" | "repeat";
+type RetryableCapture = {
+  audio: Blob;
+  mode: CaptureMode;
+  repeatField: "amount" | null;
+};
+
 function canonicalValue(field: keyof PaymentInstruction, value: unknown): string {
   if (value === undefined || value === null) return "missing";
   if (field === "amount" && typeof value === "object" && value !== null && "amount" in value) {
@@ -46,6 +53,7 @@ export function CertainDemo() {
   const [simulated, setSimulated] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [retryableCapture, setRetryableCapture] = useState<RetryableCapture | null>(null);
 
   const receipt = useMemo(() => evaluation ? createVerificationReceipt(evaluation, verifications) : null, [evaluation, verifications]);
   const pending = useMemo(() => evaluation?.fields.filter((field) => field.status === "requires_verification") ?? [], [evaluation]);
@@ -58,7 +66,37 @@ export function CertainDemo() {
 
   async function beginCapture() {
     setError(null);
+    setRetryableCapture(null);
     await recorder.start();
+  }
+
+  function applyAmountRepeat(transcript: TranscriptEvidence, currentEvaluation: ContractEvaluation, currentRepeatField: "amount" | null) {
+    if (currentRepeatField !== "amount") return;
+    const amountField = currentEvaluation.fields.find((field) => field.field === "amount");
+    const matched = repeatMatches("amount", amountField?.value, transcript.text);
+    const evidence: VerificationEvidence = {
+      field: "amount",
+      method: "repeat_match",
+      original: amountField?.value,
+      repeated: transcript.text,
+      matched,
+      transcript,
+    };
+    setVerifications((items) => [...items, evidence]);
+    setEvaluation(applyVerification(currentEvaluation, evidence));
+    if (matched) {
+      setMode("capture");
+      setRepeatField(null);
+    }
+  }
+
+  async function submitAudio(audio: Blob, captureMode: CaptureMode, captureRepeatField: "amount" | null) {
+    const transcript = await transcribe(audio);
+    if (captureMode === "capture") {
+      ingest(transcript, false);
+      return;
+    }
+    if (evaluation) applyAmountRepeat(transcript, evaluation, captureRepeatField);
   }
 
   async function finishCapture() {
@@ -66,32 +104,26 @@ export function CertainDemo() {
     setError(null);
     try {
       const audio = await recorder.stop();
-      const transcript = await transcribe(audio);
-
-      if (mode === "capture") {
-        ingest(transcript, false);
-        return;
-      }
-
-      if (!evaluation || repeatField !== "amount") return;
-      const amountField = evaluation.fields.find((field) => field.field === "amount");
-      const matched = repeatMatches("amount", amountField?.value, transcript.text);
-      const evidence: VerificationEvidence = {
-        field: "amount",
-        method: "repeat_match",
-        original: amountField?.value,
-        repeated: transcript.text,
-        matched,
-        transcript,
-      };
-      setVerifications((items) => [...items, evidence]);
-      setEvaluation(applyVerification(evaluation, evidence));
-      if (matched) {
-        setMode("capture");
-        setRepeatField(null);
-      }
+      const capture = { audio, mode, repeatField } satisfies RetryableCapture;
+      setRetryableCapture(capture);
+      await submitAudio(audio, mode, repeatField);
+      setRetryableCapture(null);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Capture failed");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function retryLastCapture() {
+    if (!retryableCapture) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await submitAudio(retryableCapture.audio, retryableCapture.mode, retryableCapture.repeatField);
+      setRetryableCapture(null);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Transcription retry failed");
     } finally {
       setBusy(false);
     }
@@ -154,6 +186,11 @@ export function CertainDemo() {
           {busy ? "Working…" : recorder.recording ? "Release" : mode === "repeat" ? "Hold to verify" : "Hold to speak"}
         </button>
         {error && <p className="error">{error}</p>}
+        {error && retryableCapture && (
+          <button className="secondary" disabled={busy} onClick={retryLastCapture}>
+            Retry last recording
+          </button>
+        )}
       </section>
 
       {evaluation && (
