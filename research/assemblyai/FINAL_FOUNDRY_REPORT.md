@@ -52,7 +52,7 @@ Preaccepted specification: `payment-approval-001`, version `1`, type `payment_in
 
 - `/favicon.ico` returned HTTP 200 with `image/x-icon` from the final build.
 - `ScriptProcessorNode` still emits a browser deprecation warning. AudioWorklet migration was deferred because it requires a separate worklet asset and could destabilize the already verified recorder.
-- Durable Pages deployment: production deployment `f11ba5cb-28b2-41b5-a1ab-6bde9816e4cf` served the stable alias `https://certain-338.pages.dev/`; root, `/eval/record`, CSS, and favicon returned HTTP 200.
+- Durable Pages deployment: source revision `0364207cdf8d7d90285e8d118f339bf32152f309` produced production deployment `b3b0e238-cb34-42de-9242-7572e682aa91` and served the stable alias `https://certain-338.pages.dev/`; root, `/eval/record`, CSS, and favicon returned HTTP 200.
 - Same-origin `/api/transcribe` Pages Function: a live `AAI-HUM-001` WAV smoke request returned HTTP 200 JSON with `provider=assemblyai`, `product=dictation`, verbatim `text`, cleaned `llm_response`, word evidence, and timing fields. The encrypted `ASSEMBLYAI_API_KEY` remains server-side.
 - The earlier Quick Tunnel remains ephemeral and is not the durable judge URL.
 

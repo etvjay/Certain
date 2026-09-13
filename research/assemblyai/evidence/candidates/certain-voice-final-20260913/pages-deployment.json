@@ -1,0 +1,50 @@
+{
+  "artifact_type": "cloudflare_pages_deployment_evidence",
+  "evidence_date": "2026-09-13",
+  "project": "certain",
+  "environment": "production",
+  "production_branch": "main",
+  "source_revision": "0364207cdf8d7d90285e8d118f339bf32152f309",
+  "stable_url": "https://certain-338.pages.dev/",
+  "immutable_deployment_url": "https://b3b0e238.certain-338.pages.dev",
+  "deployment_id": "b3b0e238-cb34-42de-9242-7572e682aa91",
+  "wrangler_upload": {
+    "new_files": 5,
+    "already_uploaded_files": 14,
+    "worker_mode": "advanced_pages_module_worker"
+  },
+  "routes": {
+    "/": { "http_status": 200, "content_type": "text/html; charset=utf-8" },
+    "/eval/record": { "http_status": 200, "content_type": "text/html; charset=utf-8" },
+    "/_next/static/chunks/1y88n7688vhch.css": { "http_status": 200, "content_type": "text/css; charset=utf-8" },
+    "/favicon.ico": { "http_status": 200, "content_type": "image/vnd.microsoft.icon" }
+  },
+  "dictation_function_smoke": {
+    "route": "/api/transcribe",
+    "method": "POST",
+    "fixture_id": "AAI-HUM-001",
+    "media_type": "audio/wav",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "provider": "assemblyai",
+    "product": "dictation",
+    "response_has_verbatim_text": true,
+    "response_has_cleaned_text_field": true,
+    "response_has_word_evidence": true,
+    "response_has_timing_fields": true,
+    "api_key": "encrypted Pages secret; value not recorded"
+  },
+  "browser_qa": {
+    "engine": "headless Chromium",
+    "route": "/",
+    "hydrated": true,
+    "capability_panels": 2,
+    "hold_to_speak_present": true,
+    "hold_to_compare_present": true
+  },
+  "limits": [
+    "This proves deployment availability and one live Dictation integration path.",
+    "It does not prove payment authorization, downstream execution, speaker identity, liveness, or biometric authentication.",
+    "The input fixture is existing human WAV evidence; no raw audio is included in this artifact."
+  ]
+}
