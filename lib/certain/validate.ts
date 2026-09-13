@@ -1,6 +1,7 @@
 import { paymentInstructionContract as contract } from "./contract";
 import { isFutureDate } from "./dates";
 import { extractPaymentInstruction } from "./extract";
+import { PREACCEPTED_PAYMENT_SPEC, comparePaymentSpecification, type PaymentSpecification } from "./specification";
 import type { ContractEvaluation, FieldEvaluation, TranscriptEvidence } from "./types";
 
 function fieldConfidence(transcript: TranscriptEvidence, value?: string): number | undefined {
@@ -13,7 +14,7 @@ function fieldConfidence(transcript: TranscriptEvidence, value?: string): number
 
 export function evaluatePaymentInstruction(
   transcript: TranscriptEvidence,
-  options: { referenceTime?: Date | string | number } = {},
+  options: { referenceTime?: Date | string | number; specification?: PaymentSpecification; requireChallenge?: boolean } = {},
 ): ContractEvaluation {
   const referenceTime = options.referenceTime ?? new Date();
   const data = extractPaymentInstruction(transcript.text, { referenceTime });
@@ -64,7 +65,20 @@ export function evaluatePaymentInstruction(
   fields.push({ field: "dueDate", value: data.dueDate, rule: contract.dueDate.verification, status: dateViolations.length ? "blocked" : "accepted", evidence: data.dueDate ? [`canonical_date:${data.dueDate.iso}`, "temporal_constraint:future_only"] : [], violations: dateViolations });
 
   const violations = fields.flatMap((field) => field.violations);
+  const specification = comparePaymentSpecification(options.specification ?? PREACCEPTED_PAYMENT_SPEC, data);
+  if (specification.status === "MISMATCH") {
+    violations.push(`Preaccepted specification ${specification.specificationId} does not match.`);
+  }
   const status = violations.length ? "blocked" : fields.some((field) => field.status === "requires_verification") ? "requires_verification" : "accepted";
 
-  return { contractId: contract.id, contractVersion: contract.version, status, transcript, fields, violations };
+  return {
+    contractId: contract.id,
+    contractVersion: contract.version,
+    status,
+    transcript,
+    specification,
+    challengeRequired: options.requireChallenge ?? false,
+    fields,
+    violations,
+  };
 }

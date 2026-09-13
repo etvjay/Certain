@@ -1,3 +1,6 @@
+import type { ChallengeEvidence } from "./challenge";
+import type { SpecificationComparison } from "./specification";
+
 export type VerificationRule = "none" | "required" | "repeat_match" | "on_uncertainty";
 export type FieldStatus = "accepted" | "requires_verification" | "verified" | "blocked";
 export type EvaluationStatus = "accepted" | "requires_verification" | "verified" | "blocked";
@@ -24,6 +27,21 @@ export interface TranscriptEvidence {
   product?: "sync" | "dictation";
 }
 
+export type SpeakerDecision = "match" | "mismatch" | "inconclusive" | "experimental_similarity_only";
+
+export interface SpeakerEvidence {
+  experimental: true;
+  profileId?: string;
+  model: string;
+  modelVersion: string;
+  metric: "cosine_similarity" | string;
+  score: number;
+  threshold: number | null;
+  decision: SpeakerDecision;
+  sampleCount?: number;
+  createdAt?: string;
+}
+
 export interface PaymentInstruction {
   vendor?: string;
   amount?: { amount: number; currency: "USD" };
@@ -46,6 +64,9 @@ export interface ContractEvaluation {
   contractVersion: string;
   status: EvaluationStatus;
   transcript: TranscriptEvidence;
+  specification: SpecificationComparison;
+  challengeRequired?: boolean;
+  challenge?: ChallengeEvidence;
   fields: FieldEvaluation[];
   violations: string[];
 }
@@ -78,6 +99,9 @@ export interface VerificationReceipt {
     audioDurationMs?: number;
   };
   transcript: TranscriptEvidence;
+  specification: SpecificationComparison;
+  challenge?: ChallengeEvidence;
+  speaker?: SpeakerEvidence;
   fields: FieldEvaluation[];
   verification: Array<
     VerificationEvidence & {

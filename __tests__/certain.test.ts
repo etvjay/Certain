@@ -251,6 +251,27 @@ describe("Certain payment_instruction/v1", () => {
     expect(result.status).toBe("blocked");
   });
 
+  it("keeps experimental speaker evidence supplementary to a blocked contract", () => {
+    const blocked = evaluatePaymentInstruction(transcript("Pay Acme Labs $50,000 against invoice INV-14892 from Growth next Friday."), { referenceTime: REF });
+    const speaker = {
+      experimental: true as const,
+      profileId: "local-profile-1",
+      model: "deferred",
+      modelVersion: "not-run",
+      metric: "cosine_similarity",
+      score: 0.99,
+      threshold: null,
+      decision: "match" as const,
+      sampleCount: 3,
+    };
+    const receipt = createVerificationReceipt(blocked, [], { speaker });
+
+    expect(receipt.status).toBe("blocked");
+    expect(receipt.speaker).toEqual(speaker);
+    expect(JSON.stringify(receipt)).not.toContain("audio");
+    expect(JSON.stringify(receipt)).not.toContain("embedding");
+  });
+
   it("never infers authorization from verification", () => {
     const result = evaluatePaymentInstruction(transcript(validText), { referenceTime: REF });
     const receipt = createVerificationReceipt(result);

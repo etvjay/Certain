@@ -1,4 +1,10 @@
-import type { ContractEvaluation, VerificationEvidence, VerificationReceipt } from "./types";
+import type { ChallengeEvidence } from "./challenge";
+import type { ContractEvaluation, SpeakerEvidence, VerificationEvidence, VerificationReceipt } from "./types";
+
+export interface ReceiptEvidenceOptions {
+  challenge?: ChallengeEvidence;
+  speaker?: SpeakerEvidence;
+}
 
 /**
  * Build an inspectable Verification Receipt.
@@ -12,6 +18,7 @@ import type { ContractEvaluation, VerificationEvidence, VerificationReceipt } fr
 export function createVerificationReceipt(
   evaluation: ContractEvaluation,
   verification: VerificationEvidence[] = [],
+  evidence: ReceiptEvidenceOptions = {},
 ): VerificationReceipt {
   return {
     receiptVersion: "1",
@@ -32,6 +39,9 @@ export function createVerificationReceipt(
       audioDurationMs: evaluation.transcript.audioDurationMs,
     },
     transcript: evaluation.transcript,
+    specification: evaluation.specification,
+    challenge: evidence.challenge ?? evaluation.challenge,
+    speaker: evidence.speaker,
     fields: evaluation.fields.map((field) => ({
       field: field.field,
       value: field.value,

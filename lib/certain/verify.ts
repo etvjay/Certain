@@ -1,5 +1,13 @@
 import { canonicalString, normalizeMoney } from "./normalize";
+import type { ChallengeEvidence } from "./challenge";
 import type { ContractEvaluation, VerificationEvidence } from "./types";
+
+function statusAfter(evaluation: ContractEvaluation, fields: ContractEvaluation["fields"]): ContractEvaluation["status"] {
+  if (evaluation.violations.length > 0 || fields.some((field) => field.status === "blocked")) return "blocked";
+  if (fields.some((field) => field.status === "requires_verification")) return "requires_verification";
+  if (evaluation.challengeRequired && evaluation.challenge?.result !== "CHALLENGE_MATCH") return "requires_verification";
+  return "verified";
+}
 
 export function repeatMatches(field: string, original: unknown, repeatedText: string): boolean {
   if (field === "amount" && original && typeof original === "object" && "amount" in original) {
@@ -26,11 +34,10 @@ export function applyVerification(evaluation: ContractEvaluation, evidence: Veri
       : field,
   );
 
-  const status = fields.some((field) => field.status === "blocked")
-    ? "blocked"
-    : fields.some((field) => field.status === "requires_verification")
-      ? "requires_verification"
-      : "verified";
+  return { ...evaluation, fields, status: statusAfter(evaluation, fields) };
+}
 
-  return { ...evaluation, fields, status };
+export function applyChallengeEvidence(evaluation: ContractEvaluation, evidence: ChallengeEvidence): ContractEvaluation {
+  const next = { ...evaluation, challenge: evidence };
+  return { ...next, status: statusAfter(next, next.fields) };
 }
