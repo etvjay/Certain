@@ -5,15 +5,14 @@ import { useRecorder } from "@/hooks/useRecorder";
 import { evaluatePaymentInstruction } from "@/lib/certain/validate";
 import { applyVerification, repeatMatches } from "@/lib/certain/verify";
 import { createVerificationReceipt } from "@/lib/certain/receipt";
+import { parseTranscriptionResponse } from "@/lib/certain/transcribeResponse";
 import type { ContractEvaluation, PaymentInstruction, TranscriptEvidence, VerificationEvidence } from "@/lib/certain/types";
 
 async function transcribe(audio: Blob): Promise<TranscriptEvidence> {
   const form = new FormData();
   form.append("audio", audio, "certain.wav");
   const response = await fetch("/api/transcribe", { method: "POST", body: form });
-  const body = await response.json();
-  if (!response.ok) throw new Error(body.error ?? "Transcription failed");
-  return body;
+  return parseTranscriptionResponse(response);
 }
 
 const NEGATIVE_TEXT = "Pay Acme Labs $50,000 against invoice INV-14892 from Growth next Friday.";
