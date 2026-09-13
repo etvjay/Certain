@@ -1,0 +1,45 @@
+{
+  "testedCommit": "80ee0a12116d199f548344d2c8e80748eddd78e3",
+  "branch": "experiment/spec-bound-voice",
+  "commands": [
+    {
+      "name": "tests",
+      "command": "npm test",
+      "exitCode": 0,
+      "passed": true,
+      "outputTail": "\n> certain@0.1.0 test\n> vitest run\n\n\n RUN  v5.0.0 /tmp/Certain\n\n\n Test Files  8 passed (8)\n      Tests  62 passed (62)\n   Start at  13:10:23\n   Duration  1.22s (transform 43%, tests 31%, import 19%, worker 6%)\n\n    Isolate  8 workers spawned \u00b7 ~87ms startup each (spawn + environment, per file)\n             at least ~608ms faster with isolate: false \u2014 reuses workers across files instead of one per file\n\n"
+    },
+    {
+      "name": "typecheck",
+      "command": "npm run typecheck",
+      "exitCode": 0,
+      "passed": true,
+      "outputTail": "\n> certain@0.1.0 typecheck\n> tsc --noEmit\n\n"
+    },
+    {
+      "name": "build",
+      "command": "npm run build",
+      "exitCode": 0,
+      "passed": true,
+      "outputTail": "\n> certain@0.1.0 build\n> next build\n\n\u25b2 Next.js 16.3.4 (Turbopack)\n\u2713 Running next.config.ts took 36ms\n\n  Creating an optimized production build ...\n\u2713 Compiled successfully in 147ms\n  Running TypeScript ...\n\n  We detected TypeScript in your project and reconfigured your tsconfig.json file for you.\n  The following suggested values were added to your tsconfig.json. These values can be changed to fit your project's needs:\n\n  \t- include was updated to add '.next/dev/types/**/*.ts'\n\n  Finished TypeScript in 469ms ...\n  Collecting page data using 1 worker ...\n  Generating static pages using 1 worker (0/6) ...\n  Generating static pages using 1 worker (1/6) \n  Generating static pages using 1 worker (2/6) \n  Generating static pages using 1 worker (4/6) \n\u2713 Generating static pages using 1 worker (6/6) in 164ms\n  Finalizing page optimization ...\n\nRoute (app)\n\u250c \u25cb /\n\u251c \u25cb /_not-found\n\u251c \u0192 /api/transcribe\n\u2514 \u25cb /eval/record\n\n\n\u25cb  (Static)   prerendered as static content\n\u0192  (Dynamic)  server-rendered on demand\n\n"
+    },
+    {
+      "name": "experiment syntax and diff",
+      "command": "sh -c node --check research/assemblyai/experiments/human/run-corpus.mjs && node --check research/assemblyai/experiments/human/score.mjs && node --check research/assemblyai/experiments/sync/run-sync.mjs && node --check research/assemblyai/experiments/prompting/compare-prompts.mjs && git diff --check",
+      "exitCode": 0,
+      "passed": true,
+      "outputTail": ""
+    }
+  ],
+  "allCommandsPassed": true,
+  "favicon": {
+    "status": 200,
+    "contentType": "image/x-icon",
+    "bytes": 92
+  },
+  "secretMatches": [],
+  "rawAudioPaths": [],
+  "biometricMaterialPaths": [],
+  "candidateForbiddenMatches": [],
+  "browserBundleContainsApiKeyName": false
+}
