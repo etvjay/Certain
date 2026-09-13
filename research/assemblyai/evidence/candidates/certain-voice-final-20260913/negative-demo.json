@@ -1,0 +1,31 @@
+{
+  "route": "http://127.0.0.1:3317/",
+  "mode": "ui_simulation",
+  "physicalMicrophone": false,
+  "transcript": "Pay Acme Labs $50,000 against invoice INV-14892 from Growth next Friday",
+  "status": "BLOCKED",
+  "specification": {
+    "status": "MISMATCH",
+    "expectedAmount": {
+      "amount": 15000,
+      "currency": "USD"
+    },
+    "observedAmount": {
+      "amount": 50000,
+      "currency": "USD"
+    },
+    "rendered": "6 / PREACCEPTED SPECIFICATIONpayment-approval-001 v1MISMATCHspec hash: b3f0d50ef7cc754ab11df7df007cda604ea115af4a422e50d8f2ce2f52747656amountexpected $15,000 USD · observed $50,000 USDMISMATCHcostCenterexpected Growth · observed GrowthMATCHEDinvoiceIdexpected INV-14892 · observed INV-14892MATCHEDvendorexpected Acme Labs · observed Acme LabsMATCHEDCertain compares canonical typed values. A specification match does not satisfy amount repeat or invoice confirmation."
+  },
+  "contract": {
+    "renderedFields": [
+      "vendorAcme LabsAcceptedallowed_set:Acme Labs",
+      "amount$50,000 USDBlockednumeric_bound:<=25000 · currency:USDAmount exceeds contract maximum of 25000 USD.",
+      "invoiceIdINV-14892Needs verificationpattern:/^INV-\\d{5}$/Confirm invoice",
+      "costCenterGrowthAcceptedallowed_set:Growth",
+      "dueDate2026-09-18 (heard as “next Friday”)Acceptedcanonical_date:2026-09-18 · temporal_constraint:future_only"
+    ],
+    "amountViolation": true
+  },
+  "receiptEmitted": false,
+  "bodyText": "CERTAIN / PAYMENT_INSTRUCTION:V1\nVerified voice input for consequential actions.\n\nAssemblyAI tells us what was heard. Certain decides whether the resulting input satisfies this application’s contract.\n\nSPEECH ≠ VERBATIM TRANSCRIPT ≠ CLEAN DICTATION ≠ APPLICATION-VALID INPUT ≠ SPECIFICATION MATCH ≠ SPEAKER SIMILARITY ≠ VERIFIED INPUT ≠ AUTHORIZED ACTION\n\n1 / APPLICATION CONTRACT\nALLOWED VENDORS\nAcme Labs · Northstar · AssemblyAI\nAMOUNT CEILING\n$25,000 USD · repeat required\nINVOICE\nINV-##### · explicit confirmation\nCOST CENTER\nEngineering · Growth · Operations\n2 / SPEAK\nDICTATE A PAYMENT INSTRUCTION\n\nExample: Pay Acme Labs fifteen thousand dollars against invoice INV-14892 from Growth next Friday.\n\nHold to speak\n3 / ASSEMBLYAI DICTATION — WHAT WAS HEARD\n\n“Pay Acme Labs $50,000 against invoice INV-14892 from Growth next Friday.”\n\nConfidence — · latency unavailable · typed simulation, not a live transcription\n\nRaw transcript, preserved verbatim. Certain never rewrites what AssemblyAI heard.\n\n4–5 / CERTAIN — TYPED FIELDS + CONTRACT DECISIONS\nBlocked\nBLOCKED\nVENDOR\nAcme Labs\nACCEPTED\n\nallowed_set:Acme Labs\n\nAMOUNT\n$50,000 USD\nBLOCKED\n\nnumeric_bound:<=25000 · currency:USD\n\nAmount exceeds contract maximum of 25000 USD.\n\nINVOICEID\nINV-14892\nNEEDS VERIFICATION\n\npattern:/^INV-\\d{5}$/\n\nConfirm invoice\nCOSTCENTER\nGrowth\nACCEPTED\n\nallowed_set:Growth\n\nDUEDATE\n2026-09-18 (heard as “next Friday”)\nACCEPTED\n\ncanonical_date:2026-09-18 · temporal_constraint:future_only\n\n6 / PREACCEPTED SPECIFICATION\npayment-approval-001 v1\nMISMATCH\n\nspec hash: b3f0d50ef7cc754ab11df7df007cda604ea115af4a422e50d8f2ce2f52747656\n\namount\nexpected $15,000 USD · observed $50,000 USD\nMISMATCH\ncostCenter\nexpected Growth · observed Growth\nMATCHED\ninvoiceId\nexpected INV-14892 · observed INV-14892\nMATCHED\nvendor\nexpected Acme Labs · observed Acme Labs\nMATCHED\n\nCertain compares canonical typed values. A specification match does not satisfy amount repeat or invoice confirmation.\n\n8 / VERIFICATION REQUIRED\n\nEvery field below must be resolved before this payload can become VERIFIED. Blocked fields cannot be resolved by confirmation.\n\ninvoiceId — explicit confirmation\nNEGATIVE MUTATION — CORRECT HEARING, INVALID INPUT\n\nSay, or simulate: “Pay Acme Labs $50,000 against invoice INV-14892 from Growth next Friday.” AssemblyAI may transcribe $50,000 perfectly. Certain must still answer BLOCKED, because the contract caps amounts at $25,000. No confirmation can promote a blocked payload to VERIFIED.\n\nSimulate the $50k instruction"
+}

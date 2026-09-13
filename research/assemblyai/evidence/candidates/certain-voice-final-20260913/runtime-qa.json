@@ -1,0 +1,43 @@
+{
+  "route": "http://127.0.0.1:3317/",
+  "results": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "url": "http://127.0.0.1:3317/",
+      "title": "Certain — Verified voice input",
+      "overflow": {
+        "scrollWidth": 1425,
+        "clientWidth": 1425
+      },
+      "buttons": [
+        "Hold to speak",
+        "Simulate the $50k instruction"
+      ],
+      "hydrationMarkers": 32,
+      "hasRecorderButton": true
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "deviceScaleFactor": 1
+      },
+      "url": "http://127.0.0.1:3317/",
+      "title": "Certain — Verified voice input",
+      "overflow": {
+        "scrollWidth": 375,
+        "clientWidth": 375
+      },
+      "buttons": [
+        "Hold to speak",
+        "Simulate the $50k instruction"
+      ],
+      "hydrationMarkers": 32,
+      "hasRecorderButton": true
+    }
+  ]
+}

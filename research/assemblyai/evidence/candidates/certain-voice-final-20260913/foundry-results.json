@@ -1,0 +1,69 @@
+{
+  "experimentId": "CERTAIN-FOUNDRY-20260913",
+  "referenceTime": "2026-09-13T12:00:00.000Z",
+  "specification": {
+    "specId": "payment-approval-001",
+    "specHash": "b3f0d50ef7cc754ab11df7df007cda604ea115af4a422e50d8f2ce2f52747656",
+    "reorderedHashStable": true,
+    "mutationChangesHash": true,
+    "equivalentAmountForms": [
+      "MATCH",
+      "MATCH",
+      "MATCH"
+    ],
+    "missingInvoice": "INCOMPLETE",
+    "wrongCostCenter": "MISMATCH",
+    "wrongInvoice": "MISMATCH",
+    "validEvaluation": {
+      "status": "requires_verification",
+      "comparison": "MATCH",
+      "amount": "requires_verification"
+    },
+    "negative50k": {
+      "status": "blocked",
+      "comparison": "MISMATCH",
+      "violations": [
+        "Amount exceeds contract maximum of 25000 USD.",
+        "Preaccepted specification payment-approval-001 does not match."
+      ],
+      "amount": {
+        "amount": 50000,
+        "currency": "USD"
+      }
+    }
+  },
+  "challenge": {
+    "id": "a423cf2e-5da2-4262-9a2d-38ea38e14c10",
+    "prompt": "Confirm AssemblyAI, code one one amber.",
+    "createdAt": "2026-09-13T12:00:00.000Z",
+    "expiresAt": "2026-09-13T12:05:00.000Z",
+    "exact": "CHALLENGE_MATCH",
+    "wrongContent": "CHALLENGE_MISMATCH",
+    "expired": "CHALLENGE_EXPIRED",
+    "replay": "CHALLENGE_ALREADY_USED",
+    "statusAfterMatchBeforeVerification": "requires_verification",
+    "finalAfterAmountAndInvoice": "verified"
+  },
+  "receipt": {
+    "status": "verified",
+    "specHash": "b3f0d50ef7cc754ab11df7df007cda604ea115af4a422e50d8f2ce2f52747656",
+    "specStatus": "MATCH",
+    "challengeResult": "CHALLENGE_MATCH",
+    "verification": [
+      "amount:repeat_match",
+      "invoiceId:confirm"
+    ],
+    "noRawAudioOrEmbeddingKeys": true,
+    "authorizationMeaning": "VERIFIED means the declared application contract and its required verification steps were satisfied. It does not mean the statement is true, and it does not authorize any downstream action.",
+    "blockedWithSpeakerMatch": {
+      "constructedBoundaryTest": true,
+      "receiptStatus": "blocked",
+      "speakerDecision": "match"
+    }
+  },
+  "speaker": {
+    "status": "DEFERRED",
+    "modelRun": false,
+    "reason": "No embedding model, enrollment samples, threshold, or biometric profile was run or shipped."
+  }
+}

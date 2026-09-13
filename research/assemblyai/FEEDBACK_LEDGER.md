@@ -99,6 +99,24 @@ These remain separate from the current Dictation findings and are not submission
 - Status: `HYPOTHESIS`.
 - Scope: Certain keeps Dictation's cleaned output separate from verbatim contract evidence; no AssemblyAI feature request follows from this boundary alone.
 
+## Certain implementation findings
+
+### CERTAIN-FB-001
+
+- Classification: `BUG`.
+- Status: `RESOLVED`.
+- Observation: the first challenge matcher compared spoken digit words literally, while Dictation returned a compound numeric token such as `16`.
+- Fix: challenge tokens now canonicalize digit words to digits and split compound numeric output; regression coverage is in `__tests__/challenge.test.ts`.
+- Evidence: live challenge response in `evidence/candidates/certain-voice-final-20260913/browser-demo.json` and the focused challenge test.
+- Boundary: this was a Certain comparison bug, not an AssemblyAI recognition bug.
+
+### CERTAIN-FB-002
+
+- Classification: `FEATURE_GAP` / `DX_FRICTION`.
+- Status: `DEFERRED`.
+- Observation: speaker embedding enrollment and threshold calibration are not part of the shipped path.
+- Decision: no ML runtime, biometric profile, embedding, or threshold was added to the product. The authorization and contract boundaries remain deterministic.
+
 ## Quality-feedback rule
 
 A transcription miss is not automatically a defect. Quality feedback must include:

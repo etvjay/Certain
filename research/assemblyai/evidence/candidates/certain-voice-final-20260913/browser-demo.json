@@ -1,0 +1,326 @@
+{
+  "route": "http://127.0.0.1:3317/",
+  "browserAudioProvenance": "controlled getUserMedia replay on final build; first/repeat use corpus WAV, challenge uses synthetic TTS WAV",
+  "finalDom": {
+    "status": "VERIFIED",
+    "specification": "6 / PREACCEPTED SPECIFICATIONpayment-approval-001 v1MATCHspec hash: b3f0d50ef7cc754ab11df7df007cda604ea115af4a422e50d8f2ce2f52747656amountexpected $15,000 USD · observed $15,000 USDMATCHEDcostCenterexpected Growth · observed GrowthMATCHEDinvoiceIdexpected INV-14892 · observed INV-14892MATCHEDvendorexpected Acme Labs · observed Acme LabsMATCHEDCertain compares canonical typed values. A specification match does not satisfy amount repeat or invoice confirmation.",
+    "challengePrompt": "Confirm Northstar, code five seven purple.",
+    "challengeResult": "CHALLENGE_MATCH"
+  },
+  "dictationResponses": [
+    {
+      "status": 200,
+      "text": "Pay Acme Labs $15,000 against invoice INV-14892 from Growth next Friday",
+      "cleanedText": "Pay Acme Labs $15,000 against invoice INV-14892 from Growth next Friday",
+      "llmError": null,
+      "confidence": 0.9392863151006946,
+      "sessionId": "742854cb-b1ff-4fd4-a287-29f67aef62c2",
+      "requestTimeMs": 303.79161599557847,
+      "syncTimeMs": 160.7843730598688,
+      "audioDurationMs": 9984,
+      "provider": "assemblyai",
+      "product": "dictation"
+    },
+    {
+      "status": 200,
+      "text": "Confirm Northstar, code 57 purple.",
+      "cleanedText": "Confirm Northstar, code 57 purple.",
+      "llmError": null,
+      "confidence": 0.8876785999270282,
+      "sessionId": "cb3b5ee6-00db-41d5-9c62-c4cf17209d35",
+      "requestTimeMs": 228.61063401796855,
+      "syncTimeMs": 118.43352019786835,
+      "audioDurationMs": 4352,
+      "provider": "assemblyai",
+      "product": "dictation"
+    },
+    {
+      "status": 200,
+      "text": "$15,000.",
+      "cleanedText": "$15,000.",
+      "llmError": null,
+      "confidence": 0.8374341724621183,
+      "sessionId": "065de0f2-014c-4015-b928-1ef8cc75f6e6",
+      "requestTimeMs": 178.23631298961118,
+      "syncTimeMs": 82.2931551374495,
+      "audioDurationMs": 1536,
+      "provider": "assemblyai",
+      "product": "dictation"
+    }
+  ],
+  "receipt": {
+    "receiptVersion": "1",
+    "contractId": "payment_instruction",
+    "contractVersion": "1",
+    "status": "verified",
+    "issuedAt": "2026-09-13T13:03:34.939Z",
+    "provenance": {
+      "provider": "assemblyai",
+      "product": "dictation",
+      "transcript": "Pay Acme Labs $15,000 against invoice INV-14892 from Growth next Friday",
+      "cleanedText": "Pay Acme Labs $15,000 against invoice INV-14892 from Growth next Friday",
+      "llmError": null,
+      "confidence": 0.9392863151006946,
+      "sessionId": "742854cb-b1ff-4fd4-a287-29f67aef62c2",
+      "requestTimeMs": 303.79161599557847,
+      "syncTimeMs": 160.7843730598688,
+      "audioDurationMs": 9984
+    },
+    "transcript": {
+      "text": "Pay Acme Labs $15,000 against invoice INV-14892 from Growth next Friday",
+      "cleanedText": "Pay Acme Labs $15,000 against invoice INV-14892 from Growth next Friday",
+      "llmError": null,
+      "confidence": 0.9392863151006946,
+      "words": [
+        {
+          "text": "Pay",
+          "confidence": 0.9373301468697268
+        },
+        {
+          "text": "Acme",
+          "confidence": 0.9749037766771136
+        },
+        {
+          "text": "Labs",
+          "confidence": 0.9618359505585451
+        },
+        {
+          "text": "$15,000",
+          "confidence": 0.6364227102141857
+        },
+        {
+          "text": "against",
+          "confidence": 0.9915311087935075
+        },
+        {
+          "text": "invoice",
+          "confidence": 0.9428292176444485
+        },
+        {
+          "text": "INV-14892",
+          "confidence": 0.9318591854639364
+        },
+        {
+          "text": "from",
+          "confidence": 0.9979356316306877
+        },
+        {
+          "text": "Growth",
+          "confidence": 0.9791761561464593
+        },
+        {
+          "text": "next",
+          "confidence": 0.990858024657953
+        },
+        {
+          "text": "Friday",
+          "confidence": 0.9874675574510765
+        }
+      ],
+      "sessionId": "742854cb-b1ff-4fd4-a287-29f67aef62c2",
+      "requestTimeMs": 303.79161599557847,
+      "syncTimeMs": 160.7843730598688,
+      "audioDurationMs": 9984,
+      "provider": "assemblyai",
+      "product": "dictation"
+    },
+    "specification": {
+      "specificationId": "payment-approval-001",
+      "specificationVersion": "1",
+      "specificationType": "payment_instruction/v1",
+      "specHash": "b3f0d50ef7cc754ab11df7df007cda604ea115af4a422e50d8f2ce2f52747656",
+      "status": "MATCH",
+      "fields": [
+        {
+          "field": "amount",
+          "expected": {
+            "amount": 15000,
+            "currency": "USD"
+          },
+          "observed": {
+            "amount": 15000,
+            "currency": "USD"
+          },
+          "matched": true
+        },
+        {
+          "field": "costCenter",
+          "expected": "Growth",
+          "observed": "Growth",
+          "matched": true
+        },
+        {
+          "field": "invoiceId",
+          "expected": "INV-14892",
+          "observed": "INV-14892",
+          "matched": true
+        },
+        {
+          "field": "vendor",
+          "expected": "Acme Labs",
+          "observed": "Acme Labs",
+          "matched": true
+        }
+      ]
+    },
+    "challenge": {
+      "challengeId": "e8602ed8-2565-4fb9-9d6f-e0d065aaae6b",
+      "result": "CHALLENGE_MATCH",
+      "createdAt": "2026-09-13T13:02:57.894Z",
+      "expiresAt": "2026-09-13T13:07:57.894Z",
+      "checkedAt": "2026-09-13T13:03:32.556Z",
+      "expectedTokens": [
+        "confirm",
+        "northstar",
+        "code",
+        "5",
+        "7",
+        "purple"
+      ],
+      "observedTokens": [
+        "confirm",
+        "northstar",
+        "code",
+        "5",
+        "7",
+        "purple"
+      ],
+      "transcript": {
+        "text": "Confirm Northstar, code 57 purple.",
+        "cleanedText": "Confirm Northstar, code 57 purple.",
+        "llmError": null,
+        "confidence": 0.8876785999270282,
+        "words": [
+          {
+            "text": "Confirm",
+            "confidence": 0.9983685451009486
+          },
+          {
+            "text": "Northstar,",
+            "confidence": 0.9126144790161007
+          },
+          {
+            "text": "code",
+            "confidence": 0.9881331315565369
+          },
+          {
+            "text": "57",
+            "confidence": 0.8315341571090359
+          },
+          {
+            "text": "purple.",
+            "confidence": 0.707742686852519
+          }
+        ],
+        "sessionId": "cb3b5ee6-00db-41d5-9c62-c4cf17209d35",
+        "requestTimeMs": 228.61063401796855,
+        "syncTimeMs": 118.43352019786835,
+        "audioDurationMs": 4352,
+        "provider": "assemblyai",
+        "product": "dictation"
+      }
+    },
+    "fields": [
+      {
+        "field": "vendor",
+        "value": "Acme Labs",
+        "status": "accepted",
+        "rule": "on_uncertainty",
+        "evidence": [
+          "allowed_set:Acme Labs",
+          "confidence:0.962"
+        ],
+        "violations": []
+      },
+      {
+        "field": "amount",
+        "value": {
+          "amount": 15000,
+          "currency": "USD"
+        },
+        "status": "verified",
+        "rule": "repeat_match",
+        "evidence": [
+          "numeric_bound:<=25000",
+          "currency:USD",
+          "verification:repeat_match"
+        ],
+        "violations": []
+      },
+      {
+        "field": "invoiceId",
+        "value": "INV-14892",
+        "status": "verified",
+        "rule": "required",
+        "evidence": [
+          "pattern:/^INV-\\d{5}$/",
+          "verification:confirm"
+        ],
+        "violations": []
+      },
+      {
+        "field": "costCenter",
+        "value": "Growth",
+        "status": "accepted",
+        "rule": "none",
+        "evidence": [
+          "allowed_set:Growth"
+        ],
+        "violations": []
+      },
+      {
+        "field": "dueDate",
+        "value": {
+          "raw": "next Friday",
+          "iso": "2026-09-18"
+        },
+        "status": "accepted",
+        "rule": "none",
+        "evidence": [
+          "canonical_date:2026-09-18",
+          "temporal_constraint:future_only"
+        ],
+        "violations": []
+      }
+    ],
+    "verification": [
+      {
+        "field": "amount",
+        "method": "repeat_match",
+        "original": {
+          "amount": 15000,
+          "currency": "USD"
+        },
+        "repeated": "$15,000.",
+        "matched": true,
+        "sessionId": "065de0f2-014c-4015-b928-1ef8cc75f6e6",
+        "requestTimeMs": 178.23631298961118,
+        "transcript": {
+          "text": "$15,000.",
+          "cleanedText": "$15,000.",
+          "llmError": null,
+          "confidence": 0.8374341724621183,
+          "words": [
+            {
+              "text": "$15,000.",
+              "confidence": 0.8374341724621183
+            }
+          ],
+          "sessionId": "065de0f2-014c-4015-b928-1ef8cc75f6e6",
+          "requestTimeMs": 178.23631298961118,
+          "syncTimeMs": 82.2931551374495,
+          "audioDurationMs": 1536,
+          "provider": "assemblyai",
+          "product": "dictation"
+        }
+      },
+      {
+        "field": "invoiceId",
+        "method": "confirm",
+        "original": "INV-14892",
+        "matched": true
+      }
+    ],
+    "meaning": "VERIFIED means the declared application contract and its required verification steps were satisfied. It does not mean the statement is true, and it does not authorize any downstream action."
+  }
+}

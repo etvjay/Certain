@@ -25,7 +25,9 @@ These are defaults, not statistical guarantees.
 | D4 | Does the documented unsupported format rejection hold? | One tiny controlled non-WAV/PCM request if safe. | status/body | Expected 415; no high-volume testing. |
 | AAI-DICT-CORPUS-001 | How does Dictation perform on the fixed human corpus? | Same SHA-verified 24-fixture corpus; 23 supported cases submitted, unsupported case held out. | per-fixture text/llm_response/words/confidence/timings + dual scorecard | Report corpus-bounded verbatim and cleaned metrics. |
 | AAI-DICT-PROMPT-001 | What incremental value comes from Dictation `stt_prompt` vs keyterms? | A0/A1/A2/A3 matched pairs on same human clips. | four responses per fixture + verbatim/cleaned scoring | Report effect only on this corpus. |
-| AAI-DICT-CORRECTION-001 | Does default cleanup resolve a spoken self-correction? | Existing self-correction fixture; compare verbatim `text` and cleaned `llm_response`. | both outputs + Certain candidate amount + verification state | Cleanup does not remove repeat requirement. |
+| AAI-DICT-CORRECTION-001 | Does default cleanup resolve a spoken self-correction? | Existing self-correction fixture; compare verbatim `text` and cleaned `llm_response`. | verbatim and cleaned output + Certain candidate amount + verification state | Cleanup does not remove repeat requirement. |
+| CERTAIN-SPEC-PRESSURE-001 | Does the preaccepted typed specification match, reject mutations, and preserve hash identity? | Deterministic valid, missing, reordered, near-neighbor, and `$50k` mutations. | field comparisons, status, hash, contract outcome | Any promotable mismatch is a critical failure. |
+| CERTAIN-CHALLENGE-PRESSURE-001 | Does fresh challenge evidence match only once and fail closed? | Generated phrase through Dictation plus wrong token, wrong number, expiry, and replay cases. | challenge ID, expected/observed tokens, result, timestamps | No liveness or authorization claim. |
 
 ### Dictation evidence result — 2026-09-13
 
@@ -36,6 +38,13 @@ These are defaults, not statistical guarantees.
 - D4 returned HTTP 415 for a tiny `audio/mpeg` payload.
 - The D1/D2 behavior is consistent with the API reference. The transcript-rewriting prose that says omitting the whole `config` part runs default cleanup remains a documentation inconsistency candidate.
 - Sanitized summary: `evidence/runs/dictation-semantics-live-20260913/summary.json`.
+
+### Certain voice evidence result — 2026-09-13
+
+- `CERTAIN-SPEC-PRESSURE-001` passed: canonical field reordering kept the SHA-256 hash stable; a one-value mutation changed it; equivalent typed money forms matched; missing and mutated fields returned `INCOMPLETE` or `MISMATCH`; `$50,000` remained contract-blocked.
+- `CERTAIN-CHALLENGE-PRESSURE-001` passed: generated challenge matched through a live `/api/transcribe` Dictation response, wrong content mismatched, expiry and used-challenge replay were rejected, and a matched challenge still left amount repeat and invoice confirmation required.
+- Browser replay reached `VERIFIED` with spec `MATCH`, `CHALLENGE_MATCH`, one amount repeat, and one invoice confirmation. The browser challenge audio was controlled synthetic TTS, not physical-microphone evidence.
+- Sanitized result: `evidence/candidates/certain-voice-final-20260913/`.
 
 ## Historical Sync evidence
 

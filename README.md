@@ -11,7 +11,7 @@ The project is intentionally small. It is not another transcription app, not a v
 Voice systems often collapse distinct stages into one:
 
 ```text
-SPEECH != VERBATIM TRANSCRIPT != CLEAN DICTATION != APPLICATION-VALID INPUT != VERIFIED INPUT != AUTHORIZED ACTION
+SPEECH != VERBATIM TRANSCRIPT != CLEAN DICTATION != APPLICATION-VALID INPUT != SPECIFICATION MATCH != SPEAKER SIMILARITY != VERIFIED INPUT != AUTHORIZED ACTION
 ```
 
 A transcript can be perfectly recognized and still be invalid for an application. An amount can exceed a limit. An invoice ID can violate a required pattern. A recipient can be outside an allowed set. A field can require explicit repeat verification even when recognition confidence is high.
@@ -24,6 +24,8 @@ speech
   -> verbatim transcript + clean dictation
   -> typed field mapping
   -> application contract
+  -> preaccepted specification comparison + spec hash
+  -> fresh challenge evidence (when configured)
   -> verification requirements
   -> verification receipt
   -> trusted typed input
@@ -105,6 +107,30 @@ STATUS: REQUIRES_VERIFICATION
 
 The user repeats the amount. If the normalized second hearing matches the first, Certain transitions the field to `VERIFIED` and emits a verification receipt.
 
+## Preaccepted specification
+
+The demo also compares the typed fields against one bounded, preaccepted specification. It is not a generic policy language:
+
+```json
+{
+  "id": "payment-approval-001",
+  "version": "1",
+  "type": "payment_instruction/v1",
+  "fields": {
+    "vendor": { "mode": "equals", "value": "Acme Labs" },
+    "amount": { "mode": "equals", "value": 15000, "currency": "USD" },
+    "invoiceId": { "mode": "equals", "value": "INV-14892" },
+    "costCenter": { "mode": "equals", "value": "Growth" }
+  }
+}
+```
+
+Certain canonicalizes object keys before hashing with SHA-256. The published hash is `b3f0d50ef7cc754ab11df7df007cda604ea115af4a422e50d8f2ce2f52747656`. Comparison is field-by-field over typed values, not sentence strings, and returns `MATCH`, `MISMATCH`, or `INCOMPLETE`. A `MATCH` says the observed value equals the preaccepted value; it does not replace the amount repeat or invoice confirmation requirements.
+
+## Fresh challenge evidence
+
+After a payment instruction is captured, Certain generates a fresh phrase with a random vendor, two spoken digits, a color, a unique ID, and a five-minute expiry. The response is sent through the same dedicated Dictation API, then compared by canonical tokens. A matched challenge is consumed and a second use is rejected. This is freshness evidence only, not proof of liveness, identity, or authorization.
+
 ## Negative mutation
 
 The key demo is not the happy path.
@@ -113,7 +139,7 @@ Say instead:
 
 > Pay Acme Labs fifty thousand dollars against invoice INV-14892 from Growth next Friday.
 
-AssemblyAI can transcribe `$50,000` perfectly. Certain must still reject the payload because the application contract caps the amount at `$25,000`.
+AssemblyAI can transcribe `$50,000` perfectly. Certain must still reject the payload because the application contract caps the amount at `$25,000`. The same input also compares as a `MISMATCH` against the preaccepted `$15,000 USD` amount. A matched fresh challenge or supplementary speaker-similarity result cannot override either failure.
 
 ```text
 TRANSCRIPTION: CORRECT
@@ -150,6 +176,15 @@ Contract Engine
   `-- verification policy
   |
   v
+Preaccepted Specification
+  |-- canonical typed field comparison
+  `-- SHA-256 specification hash
+  |
+  v
+Fresh Challenge
+  `-- dedicated Dictation response + single-use token match
+  |
+  v
 Verification Engine
   |-- confirm
   `-- repeat_match
@@ -169,14 +204,21 @@ TRANSCRIBED
    v
 VALIDATED
    |\
-   | \ contract violation
+   | \ contract/specification violation
    |  -> BLOCKED
    |
-   | verification required
+   | preaccepted specification MATCH
+   v
+FRESH_CHALLENGE
+   |\
+   | \ mismatch / expired / replay
+   |  -> remains unresolved
+   |
+   | matched freshness evidence
    v
 REQUIRES_VERIFICATION
    |
-   | matching evidence
+   | amount repeat + invoice confirmation
    v
 VERIFIED
 ```
@@ -188,6 +230,7 @@ VERIFIED
 ```text
 app/
   api/transcribe/route.ts   # server-side AssemblyAI integration
+  favicon.ico
   globals.css
   layout.tsx
   page.tsx                  # one-page demo
@@ -204,6 +247,8 @@ lib/
     contract.ts             # payment_instruction/v1
     extract.ts              # bounded transcript -> typed fields
     normalize.ts            # repeat-comparison normalization
+    specification.ts        # preaccepted typed spec + canonical hash
+    challenge.ts            # fresh expiring challenge evidence
     receipt.ts              # evidence artifact
     types.ts
     validate.ts             # deterministic contract engine
@@ -221,6 +266,8 @@ __tests__/
 - one declarative application contract;
 - bounded field mapping;
 - deterministic contract evaluation;
+- one preaccepted typed specification with a canonical hash;
+- one expiring, single-use freshness challenge;
 - one repeat-match verification mechanism;
 - `REQUIRES_VERIFICATION`, `VERIFIED`, and `BLOCKED` states;
 - a machine-readable verification receipt.
@@ -229,6 +276,8 @@ __tests__/
 
 - one polished payment-instruction flow;
 - visible raw transcript vs Certain evaluation;
+- preaccepted specification match with field evidence;
+- fresh challenge response through Dictation;
 - successful repeat verification;
 - one negative mutation (`$50k > $25k`);
 - clear evidence of what AssemblyAI supplied and what Certain added.
@@ -243,7 +292,8 @@ __tests__/
 - browser extensions;
 - streaming transcription;
 - cryptographic attestations;
-- generalized named-entity recognition.
+- generalized named-entity recognition;
+- speaker embeddings or biometric authentication;
 
 ## Local development
 
@@ -285,18 +335,21 @@ The minimum evidence suite covers:
 5. valid cost center -> accepted;
 6. repeat match -> verified;
 7. repeat mismatch -> remains unresolved;
-8. verified receipt preserves contract version and field evidence.
+8. verified receipt preserves contract version and field evidence;
+9. specification hash and field comparison are preserved in the receipt;
+10. fresh challenges expire, match through Dictation output, and reject replay;
+11. speaker evidence, if supplied, remains experimental and cannot override a block.
 
 ## Security boundary
 
-The AssemblyAI API key is server-only. Browser code sends audio to `/api/transcribe`; the server route calls AssemblyAI. Certain does not expose the API credential to the client.
+The AssemblyAI API key is server-only. Browser code sends audio to `/api/transcribe`; the server route calls AssemblyAI. Certain does not expose the API credential to the client. Challenge state is bounded to the browser session; it is freshness evidence for this demo, not an identity or authorization primitive.
 
-This prototype also deliberately stops before downstream execution. A `VERIFIED` receipt is input evidence, **not authorization**. Any system that moves money, changes state, or calls a privileged tool must perform its own authority checks after Certain.
+This prototype also deliberately stops before downstream execution. A `VERIFIED` receipt is input evidence, **not authorization**. Any system that moves money, changes state, or calls a privileged tool must perform its own authority checks after Certain. Speaker similarity is not shipped; if experimental evidence is supplied to the receipt API, it is supplementary and cannot override a contract or specification block.
 
 ## Design invariant
 
-> AssemblyAI hears the user. Certain determines when an application may trust the resulting input.
+> AssemblyAI hears the user. Certain compares the typed claim to its application contract and, when configured, a preaccepted specification, then records the evidence required to trust the input. Neither voice similarity nor verification is authorization.
 
 ## Status
 
-Early implementation for AssemblyAI Voice Hackathon Week, September 2026.
+Ratified Dictation build plus specification-bound verification and fresh challenge evidence for AssemblyAI Voice Hackathon Week, September 2026. The optional speaker-similarity experiment is deliberately deferred; the current Quick Tunnel is a temporary review deployment, not durable hosting.

@@ -55,8 +55,10 @@ research/assemblyai/
 ├── experiments/
 │   ├── sync/run-sync.mjs
 │   ├── prompting/compare-prompts.mjs
-│   └── human/run-corpus.mjs        # --api dictation (default) or --api sync
+│   ├── human/run-corpus.mjs        # --api dictation (default) or --api sync
+│   └── speaker/README.md            # deliberate optional deferral
 └── evidence/
+    ├── candidates/certain-voice-final-20260913/
     └── README.md
 ```
 
@@ -75,6 +77,7 @@ Priority order:
 7. Raw HTTP vs JS integration/documentation parity.
 8. Preserve historical Sync evidence and compare only with explicit labels.
 9. Certain as a downstream consumer of the same evidence.
+10. Preaccepted typed specification and fresh challenge evidence as Certain-owned controls.
 
 ## Phase II
 
@@ -174,6 +177,17 @@ A cleanup failure is not a transcription failure when `text` is present. Certain
 - Matched contextual run on `AAI-HUM-003`, `AAI-HUM-015`, and `AAI-HUM-023`: A0 4/8, A1 8/8, A2 7/8, A3 7/8 exact verbatim target matches. Every fixture used the same audio SHA in all four arms.
 - Payment-context run on `AAI-HUM-001`: A0 2/5, A1 3/5, A2 3/5, A3 4/5 exact verbatim target matches.
 - Self-correction fixture `AAI-HUM-004`: verbatim was `Send 10,000 sorry 15,000 dollars to Notstar`; cleaned output was `Send 15,000 dollars to Notstar`. Certain still keeps the parsed `$15,000 USD` amount at `repeat_match`; the overall input is blocked because the vendor and other required fields are not valid.
+
+## Certain final closeout evidence
+
+The product-owned final path adds two bounded controls above Dictation:
+
+- `payment-approval-001` is compared against canonical typed fields and pinned by SHA-256 `b3f0d50ef7cc754ab11df7df007cda604ea115af4a422e50d8f2ce2f52747656`.
+- A generated five-minute challenge uses canonical expected/observed tokens, is consumed only on `CHALLENGE_MATCH`, and returns explicit mismatch, expiry, and replay results.
+- The live browser replay reached `VERIFIED` with Dictation `text`, `llm_response`, spec `MATCH`, challenge `CHALLENGE_MATCH`, amount `repeat_match`, and invoice `confirm` evidence. It used controlled getUserMedia audio for the challenge and is not physical-microphone evidence.
+- Speaker similarity is explicitly deferred. No speaker model, threshold, embedding, or biometric profile is shipped.
+
+The sanitized candidate bundle is `research/assemblyai/evidence/candidates/certain-voice-final-20260913/`. Historical Sync runs remain under their original IDs and are not relabeled.
 
 The run roots are local generated evidence under `research/assemblyai/evidence/runs/`; they are gitignored because provider responses contain transcript text. These figures are corpus-bounded observations, not general accuracy claims.
 

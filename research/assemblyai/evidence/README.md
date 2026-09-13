@@ -93,3 +93,17 @@ Certain uses only the verbatim `text` for contract evaluation. Cleaned output is
 ## Promotion
 
 When a finding is ready for review, copy only the smallest sanitized evidence bundle required to reproduce it into a tracked `evidence/candidates/<feedback-id>/` path. Keep source audio out unless it is synthetic/non-sensitive and explicitly intended for publication.
+
+The final Certain candidate bundle contains result metadata and the final Foundry report only:
+
+```text
+candidates/certain-voice-final-20260913/
+├── browser-demo.json
+├── negative-demo.json
+├── runtime-qa.json
+├── foundry-results.json
+├── README.md
+└── ci.json
+```
+
+It records Dictation/provider metadata, typed fields, specification hash and comparisons, challenge result/timestamps, verification methods, and the authorization boundary. It contains no WAV bytes, raw audio, embeddings, API keys, or authorization headers. The browser challenge result is labeled controlled replay; the separate operator microphone gate remains an external evidence item.

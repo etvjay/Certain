@@ -153,9 +153,13 @@ AssemblyAI
 Certain
   application-defined schema
   deterministic constraints
+  preaccepted typed specification + canonical SHA-256 hash
+  fresh challenge generation and single-use freshness evidence
   verification requirements
   verification evidence
   trusted-input state transition
 ```
+
+Speaker similarity is not part of the shipped path. Any future embedding result must remain experimental supplementary evidence and cannot override a contract or specification block.
 
 Certain must not claim differentiation for behavior already native to AssemblyAI.
