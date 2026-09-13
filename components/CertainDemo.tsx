@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRecorder } from "@/hooks/useRecorder";
 import { evaluatePaymentInstruction } from "@/lib/certain/validate";
-import { applyVerification, repeatMatches } from "@/lib/certain/verify";
+import { appendVerificationEvidence, applyVerification, repeatMatches } from "@/lib/certain/verify";
 import { createVerificationReceipt } from "@/lib/certain/receipt";
 import { parseTranscriptionResponse } from "@/lib/certain/transcribeResponse";
 import type { ContractEvaluation, PaymentInstruction, TranscriptEvidence, VerificationEvidence } from "@/lib/certain/types";
@@ -54,6 +54,7 @@ export function CertainDemo() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [retryableCapture, setRetryableCapture] = useState<RetryableCapture | null>(null);
+  const captureInFlightRef = useRef(false);
 
   const receipt = useMemo(() => evaluation ? createVerificationReceipt(evaluation, verifications) : null, [evaluation, verifications]);
   const pending = useMemo(() => evaluation?.fields.filter((field) => field.status === "requires_verification") ?? [], [evaluation]);
@@ -82,7 +83,7 @@ export function CertainDemo() {
       matched,
       transcript,
     };
-    setVerifications((items) => [...items, evidence]);
+    setVerifications((items) => appendVerificationEvidence(items, evidence));
     setEvaluation(applyVerification(currentEvaluation, evidence));
     if (matched) {
       setMode("capture");
@@ -100,6 +101,8 @@ export function CertainDemo() {
   }
 
   async function finishCapture() {
+    if (captureInFlightRef.current) return;
+    captureInFlightRef.current = true;
     setBusy(true);
     setError(null);
     try {
@@ -111,12 +114,14 @@ export function CertainDemo() {
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Capture failed");
     } finally {
+      captureInFlightRef.current = false;
       setBusy(false);
     }
   }
 
   async function retryLastCapture() {
-    if (!retryableCapture) return;
+    if (!retryableCapture || captureInFlightRef.current) return;
+    captureInFlightRef.current = true;
     setBusy(true);
     setError(null);
     try {
@@ -125,6 +130,7 @@ export function CertainDemo() {
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Transcription retry failed");
     } finally {
+      captureInFlightRef.current = false;
       setBusy(false);
     }
   }
@@ -140,7 +146,7 @@ export function CertainDemo() {
     const field = evaluation.fields.find((item) => item.field === fieldName);
     if (!field || field.status !== "requires_verification") return;
     const evidence: VerificationEvidence = { field: fieldName, method: "confirm", original: field.value, matched: true };
-    setVerifications((items) => [...items, evidence]);
+    setVerifications((items) => appendVerificationEvidence(items, evidence));
     setEvaluation(applyVerification(evaluation, evidence));
   }
 

@@ -9,6 +9,14 @@ export function repeatMatches(field: string, original: unknown, repeatedText: st
   return canonicalString(String(original ?? "")) === canonicalString(repeatedText);
 }
 
+export function appendVerificationEvidence(items: VerificationEvidence[], evidence: VerificationEvidence): VerificationEvidence[] {
+  if (!evidence.matched) return [...items, evidence];
+  const duplicate = items.some(
+    (item) => item.matched && item.field === evidence.field && item.method === evidence.method && JSON.stringify(item.original) === JSON.stringify(evidence.original),
+  );
+  return duplicate ? items : [...items, evidence];
+}
+
 export function applyVerification(evaluation: ContractEvaluation, evidence: VerificationEvidence): ContractEvaluation {
   if (!evidence.matched) return evaluation;
 

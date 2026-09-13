@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { transcribeWithAssemblyAI } from "../lib/assemblyai";
 import { extractPaymentInstruction } from "../lib/certain/extract";
 import { createVerificationReceipt } from "../lib/certain/receipt";
-import { applyVerification, repeatMatches } from "../lib/certain/verify";
+import { applyVerification, appendVerificationEvidence, repeatMatches } from "../lib/certain/verify";
 import { evaluatePaymentInstruction } from "../lib/certain/validate";
 import type { TranscriptEvidence } from "../lib/certain/types";
 
@@ -119,6 +119,22 @@ describe("Certain payment_instruction/v1", () => {
     const next = applyVerification(result, { field: "amount", method: "repeat_match", original: amount, repeated: { amount: 50_000, currency: "USD" }, matched: false });
     expect(next.status).toBe("requires_verification");
     expect(next.fields.find((field) => field.field === "amount")?.status).toBe("requires_verification");
+  });
+
+  it("does not duplicate a successful verification evidence entry", () => {
+    const evidence = { field: "amount" as const, method: "repeat_match" as const, original: { amount: 15000, currency: "USD" as const }, repeated: "Fifteen thousand dollars.", matched: true };
+    const once = appendVerificationEvidence([], evidence);
+    const twice = appendVerificationEvidence(once, { ...evidence });
+    const differentlyPunctuated = appendVerificationEvidence(once, { ...evidence, repeated: "fifteen thousand dollars" });
+    expect(once).toHaveLength(1);
+    expect(twice).toHaveLength(1);
+    expect(differentlyPunctuated).toHaveLength(1);
+  });
+
+  it("keeps a failed attempt and a later successful verification distinct", () => {
+    const failed = { field: "amount" as const, method: "repeat_match" as const, original: { amount: 15000, currency: "USD" as const }, repeated: "Fifty thousand dollars.", matched: false };
+    const passed = { field: "amount" as const, method: "repeat_match" as const, original: { amount: 15000, currency: "USD" as const }, repeated: "Fifteen thousand dollars.", matched: true };
+    expect(appendVerificationEvidence([failed], passed)).toHaveLength(2);
   });
 
   it("transitions a matched repeated amount to verified while leaving other required fields explicit", () => {
