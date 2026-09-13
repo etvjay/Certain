@@ -1,6 +1,9 @@
 node_modules/
 .next/
 out/
+.pages-build/
+.pages-functions-build/
+.wrangler/
 .env
 .env.local
 .env.*.local

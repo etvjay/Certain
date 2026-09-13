@@ -15,6 +15,9 @@ describe("Certain closeout documentation", () => {
     expect(readme).toContain("SHA-256");
     expect(readme).toContain("VERIFIED");
     expect(submission.indexOf("## In plain English")).toBeGreaterThan(-1);
+    expect(readme).toContain("pages:prepare");
+    expect(readme).toContain("certain-338.pages.dev");
+    expect(foundry).toContain("Pages Function");
   });
 
   it("keeps Certain implementation notes outside AssemblyAI feedback", () => {

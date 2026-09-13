@@ -54,11 +54,12 @@ The `FEEDBACK / FOUNDRY EVIDENCE` disclosure is intentionally separate from both
 - Negative `$50,000` mutation: `research/assemblyai/evidence/candidates/certain-voice-final-20260913/negative-demo.json`.
 - Deterministic pressure cases and receipt boundary checks: `research/assemblyai/evidence/candidates/certain-voice-final-20260913/foundry-results.json`.
 - Responsive/hydration checks: `research/assemblyai/evidence/candidates/certain-voice-final-20260913/runtime-qa.json`.
+- Durable Cloudflare Pages deployment and same-origin transcription Function: `research/assemblyai/evidence/candidates/certain-voice-final-20260913/pages-deployment.json`.
 - Full Foundry classification: `research/assemblyai/FINAL_FOUNDRY_REPORT.md`.
 
 ## Evidence limits
 
-The browser challenge artifact is controlled getUserMedia replay: the initial and repeat clips use the existing human WAV replay, and the challenge uses synthetic TTS audio. It is not physical-microphone evidence. The exact `$50,000` negative result is a UI simulation backed by deterministic tests and live Dictation human corpus behavior; a separate physical-microphone recording of that exact sentence was not available in the agent environment. The Quick Tunnel used for review is ephemeral. Speaker similarity and durable hosting are deferred.
+The browser challenge artifact is controlled getUserMedia replay: the initial and repeat clips use the existing human WAV replay, and the challenge uses synthetic TTS audio. It is not physical-microphone evidence. The exact `$50,000` negative result is a UI simulation backed by deterministic tests and live Dictation human corpus behavior; a separate physical-microphone recording of that exact sentence was not available in the agent environment. The durable Pages URL and `/api/transcribe` Function are live deployment evidence, not proof of production authorization, speaker identity, liveness, payment execution, or a general AssemblyAI accuracy rate. Speaker similarity remains deferred.
 
 ## Submission boundary
 

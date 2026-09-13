@@ -55,8 +55,9 @@ export async function transcribeWithDictation(
     ...paymentInstructionRecognitionContext,
     keyterms_prompt: [...paymentInstructionRecognitionContext.keyterms_prompt],
   },
+  configuredApiKey?: string,
 ): Promise<TranscriptEvidence> {
-  const apiKey = process.env.ASSEMBLYAI_API_KEY;
+  const apiKey = configuredApiKey ?? (typeof process !== "undefined" ? process.env.ASSEMBLYAI_API_KEY : undefined);
   if (!apiKey) throw new Error("ASSEMBLYAI_API_KEY is not configured");
 
   const config: Record<string, unknown> = {};

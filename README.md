@@ -250,6 +250,8 @@ app/
   globals.css
   layout.tsx
   page.tsx                  # one-page demo
+functions/
+  api/transcribe.ts        # Cloudflare Pages Function for Dictation
 components/
   CertainDemo.tsx
 hooks/
@@ -374,6 +376,17 @@ This prototype also deliberately stops before downstream execution. A `VERIFIED`
 
 > AssemblyAI hears the user. Certain compares the typed claim to its application contract and, when configured, a preaccepted specification, then records the evidence required to trust the input. Neither voice similarity nor verification is authorization.
 
+## Cloudflare Pages deployment
+
+The durable judge-facing deployment serves the verified static UI and the same-origin `/api/transcribe` Pages Function. The AssemblyAI key is stored as an encrypted Pages secret and is never sent to the browser.
+
+```bash
+npm run pages:prepare
+npx wrangler pages deploy .pages-build --project-name certain --branch main --no-bundle
+```
+
+Current deployment: [certain-338.pages.dev](https://certain-338.pages.dev/). The earlier Quick Tunnel remains an ephemeral review surface, not the production URL. Pages availability does not imply payment authorization, speaker identity, liveness, or downstream execution.
+
 ## Status
 
-Ratified Dictation build plus specification-bound verification and fresh challenge evidence for AssemblyAI Voice Hackathon Week, September 2026. The optional speaker-similarity experiment is deliberately deferred; the current Quick Tunnel is a temporary review deployment, not durable hosting.
+Ratified Dictation build plus specification-bound verification, fresh challenge evidence, and a durable Cloudflare Pages deployment for AssemblyAI Voice Hackathon Week, September 2026. The optional speaker-similarity experiment remains deliberately deferred.

@@ -11,6 +11,9 @@ This candidate bundle is sanitized metadata and deterministic result evidence. I
 - `runtime-qa.json` — hydrated desktop/mobile route checks at 1440px and 390px widths; both had equal document/client widths and the recorder control was present.
 - `foundry-results.json` — deterministic pressure results for specification hashes, typed field comparisons, challenge outcomes, receipt integrity, and the speaker boundary.
 - `ci.json` — final exact-head local test, typecheck, build, syntax, diff, and privacy-scan receipt.
+- `pages-deployment.json` — sanitized Cloudflare Pages production deployment, route checks, hydration check, and live Dictation Function smoke result.
+
+The Pages Function smoke request used the existing `AAI-HUM-001` WAV fixture and returned HTTP 200 JSON with `provider=assemblyai` and `product=dictation`. The deployed endpoint is same-origin and keeps the AssemblyAI secret server-side.
 
 ## External operator evidence
 

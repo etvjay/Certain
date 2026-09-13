@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "pages:prepare": "npm run build && node scripts/prepare-pages.mjs",
     "start": "next start",
     "test": "vitest run",
     "test:watch": "vitest",

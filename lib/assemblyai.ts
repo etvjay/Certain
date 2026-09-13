@@ -22,6 +22,7 @@ export async function transcribeWithAssemblyAI(
     ...paymentInstructionRecognitionContext,
     keyterms_prompt: [...paymentInstructionRecognitionContext.keyterms_prompt],
   },
+  configuredApiKey?: string,
 ): Promise<TranscriptEvidence> {
-  return transcribeWithDictation(audio, context);
+  return transcribeWithDictation(audio, context, configuredApiKey);
 }

@@ -52,7 +52,9 @@ Preaccepted specification: `payment-approval-001`, version `1`, type `payment_in
 
 - `/favicon.ico` returned HTTP 200 with `image/x-icon` from the final build.
 - `ScriptProcessorNode` still emits a browser deprecation warning. AudioWorklet migration was deferred because it requires a separate worklet asset and could destabilize the already verified recorder.
-- No supported durable deployment configuration or deployment-account access was available in this checkout. Durable hosting is `BLOCKED_EXTERNAL`; the Quick Tunnel remains ephemeral.
+- Durable Pages deployment: production deployment `f11ba5cb-28b2-41b5-a1ab-6bde9816e4cf` served the stable alias `https://certain-338.pages.dev/`; root, `/eval/record`, CSS, and favicon returned HTTP 200.
+- Same-origin `/api/transcribe` Pages Function: a live `AAI-HUM-001` WAV smoke request returned HTTP 200 JSON with `provider=assemblyai`, `product=dictation`, verbatim `text`, cleaned `llm_response`, word evidence, and timing fields. The encrypted `ASSEMBLYAI_API_KEY` remains server-side.
+- The earlier Quick Tunnel remains ephemeral and is not the durable judge URL.
 
 ## Foundry stop gate
 
@@ -69,10 +71,10 @@ speaker evidence overrides BLOCKED     NO
 
 ## Evidence ceiling
 
-The retained human corpus and user-supplied operator evidence support the stated bounded demo claims. The final browser challenge and negative artifacts are controlled replay/UI-simulation evidence, not physical microphone evidence. No claim is made for secure identity, liveness, biometric authentication, payment authorization, durable hosting, or a general AssemblyAI accuracy rate.
+The retained human corpus and user-supplied operator evidence support the stated bounded demo claims. The final browser challenge and negative artifacts are controlled replay/UI-simulation evidence, not physical microphone evidence. The Pages route and live Dictation Function smoke establish deployment availability and one provider integration path, not production authorization, secure identity, liveness, biometric authentication, payment execution, or a general AssemblyAI accuracy rate.
 
 ## Final classification
 
 `PASS_WITH_LIMITATIONS`.
 
-The required implementation, deterministic tests, Dictation route, specification comparison, challenge lifecycle, receipt integrity, UI, and negative semantics passed. The remaining limitations are external or consciously deferred: physical microphone capture of the newly added challenge, physical microphone capture of the exact `$50,000` sentence, durable deployment access, ScriptProcessor deprecation, and optional speaker similarity.
+The required implementation, deterministic tests, Dictation route, specification comparison, challenge lifecycle, receipt integrity, UI, negative semantics, and durable Pages route passed. The remaining limitations are external or consciously deferred: physical microphone capture of the newly added challenge, physical microphone capture of the exact `$50,000` sentence, ScriptProcessor deprecation, and optional speaker similarity.
