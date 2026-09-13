@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRecorder } from "@/hooks/useRecorder";
 import { HUMAN_CORPUS_ID, HUMAN_CORPUS_TRUTH_FREEZE, humanEvaluationFixtures } from "@/lib/eval/fixtures";
 import { clearCorpusRecordings, groundTruthHash, loadCorpusRecordings, saveRecording } from "@/lib/eval/corpusStore";
+import { wavDurationMs } from "@/lib/eval/wav";
 import { createZip } from "@/lib/eval/zip";
 
 type Recording = {
@@ -40,7 +41,6 @@ export function EvaluationRecorder() {
   const [storeError, setStoreError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
-  const startedAtRef = useRef<number | null>(null);
 
   const fixture = humanEvaluationFixtures[index];
   const current = recordings[fixture.id];
@@ -58,10 +58,11 @@ export function EvaluationRecorder() {
         for (const item of stored) {
           const definition = humanEvaluationFixtures.find((entry) => entry.id === item.fixtureId);
           if (!definition) continue;
+          const durationMs = await wavDurationMs(item.blob).catch(() => item.durationMs);
           next[item.fixtureId] = {
             blob: item.blob,
             url: URL.createObjectURL(item.blob),
-            durationMs: item.durationMs,
+            durationMs,
             capturedAt: item.capturedAt,
             staleFixture: item.groundTruthHash !== (await groundTruthHash(definition.groundTruth)),
           };
@@ -82,7 +83,6 @@ export function EvaluationRecorder() {
   async function start() {
     setError(null);
     try {
-      startedAtRef.current = performance.now();
       await recorder.start();
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Could not access the microphone.");
@@ -102,8 +102,7 @@ export function EvaluationRecorder() {
     setError(null);
     try {
       const blob = await recorder.stop();
-      const durationMs = startedAtRef.current ? performance.now() - startedAtRef.current : 0;
-      startedAtRef.current = null;
+      const durationMs = await wavDurationMs(blob);
       const capturedAt = new Date().toISOString();
       const hash = await groundTruthHash(fixture.groundTruth);
       try {
