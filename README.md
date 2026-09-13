@@ -2,6 +2,29 @@
 
 **Verified voice input for consequential actions.**
 
+## Start here
+
+### In plain English
+
+Certain is a checkpoint for spoken instructions that could have real consequences, such as a payment. It shows what the speech service heard, turns that statement into named fields, and makes a bounded decision before anyone treats the input as trustworthy. It does not send money or grant permission.
+
+The page contains two separate tools:
+
+1. **Verify a consequential action** checks whether a spoken payment instruction follows the application's rules, completes the required repeat and confirmation steps, and produces a `Verification Receipt`.
+2. **Verify against a preaccepted specification** checks an independent spoken candidate against values accepted in advance, then reports `MATCH`, `MISMATCH`, or `INCOMPLETE`.
+
+A clear `VERIFIED` result means the declared input rules and evidence steps were satisfied. It does not mean the statement is true, identify the speaker, prove liveness, or authorize a downstream action. A correctly heard `$50,000` instruction remains blocked by the `$25,000` application limit.
+
+### Technical terms in this README
+
+- **AssemblyAI Dictation** is the speech-recognition service. Its `text` field is the verbatim transcript, meaning the words returned as heard. Its optional `llm_response` field is clean dictation, meaning a separate readable rewrite that is never used as the authoritative contract input.
+- **Typed fields** are the structured values Certain extracts from speech, such as `vendor`, `amount`, `invoiceId`, `costCenter`, and `dueDate`.
+- **Application contract** is the fixed `payment_instruction/v1` rule set for allowed vendors, the USD amount ceiling, invoice format, cost center, date constraints, and required verification.
+- **Preaccepted specification** is the fixed `payment-approval-001` set of expected typed values. Certain compares canonical values field by field rather than comparing sentences.
+- **Canonical** means equivalent representations are put into one stable form. The specification's canonical representation is hashed with `SHA-256` so the same specification has the same `specHash`.
+- **Fresh challenge** is a random, expiring, single-use phrase used as freshness evidence. It is not identity or liveness proof.
+- **Verification Receipt** is the evidence record showing the contract result, transcript provenance, specification result, and required verification steps. It is not an authorization record.
+
 Certain is a thin application-contract layer for voice input. AssemblyAI answers **what was heard**. Certain answers a different question: **does the resulting input satisfy the application's contract, and has every field that requires verification actually been verified?**
 
 The project is intentionally small. It is not another transcription app, not a voice agent, and not an authorization system.
@@ -18,18 +41,38 @@ A transcript can be perfectly recognized and still be invalid for an application
 
 Certain makes that boundary explicit.
 
+## Capabilities on the demo page
+
+The live demo presents two peer capability workspaces. They are parallel tools with separate inputs, separate state, and separate results. `Verify a consequential action` is the core payment-verification product. `Verify against a preaccepted specification` is the specification-bound comparison product. Each has its own dashboard sidebar and voice control. The Dictation adapter, typed mapper, canonicalizer, and receipt formats are shared implementation mechanics, not a shared product workflow. The negative `$50,000` mutation is a separate refusal test below both workspaces.
+
 ```text
-speech
+capability 01: consequential action verification
+  -> its own spoken candidate
+  -> contract -> required verification -> receipt
+
+capability 02: preaccepted specification verification
+  -> its own spoken candidate
+  -> typed fields -> canonical hash -> field comparison
+  -> MATCH / MISMATCH / INCOMPLETE
+
+shared implementation mechanics, not shared capability state
+  -> Dictation adapter -> verbatim text + clean dictation
+  -> bounded typed field mapper
+
+separate boundary test
+  -> correctly heard $50,000 -> contract BLOCKED + spec MISMATCH
+```
+
+Each workspace independently uses the bounded recognition and mapping mechanics:
+
+```text
+candidate speech
   -> AssemblyAI Dictation
   -> verbatim transcript + clean dictation
   -> typed field mapping
-  -> application contract
-  -> preaccepted specification comparison + spec hash
-  -> fresh challenge evidence (when configured)
-  -> verification requirements
-  -> verification receipt
-  -> trusted typed input
 ```
+
+Capability 01 then applies the application contract, fresh challenge, repeat, confirmation, and receipt. Capability 02 compares its own candidate's typed fields against the preaccepted specification and hash. Neither capability authorizes payment execution.
 
 ## What the substrate already does
 
@@ -139,7 +182,7 @@ Say instead:
 
 > Pay Acme Labs fifty thousand dollars against invoice INV-14892 from Growth next Friday.
 
-AssemblyAI can transcribe `$50,000` perfectly. Certain must still reject the payload because the application contract caps the amount at `$25,000`. The same input also compares as a `MISMATCH` against the preaccepted `$15,000 USD` amount. A matched fresh challenge or supplementary speaker-similarity result cannot override either failure.
+AssemblyAI can transcribe `$50,000` perfectly. Capability 01 must still reject the candidate because its application contract caps the amount at `$25,000`. Capability 02 independently compares that candidate against the preaccepted `$15,000 USD` amount and returns `MISMATCH`. A matched fresh challenge or supplementary speaker-similarity result cannot override either failure.
 
 ```text
 TRANSCRIPTION: CORRECT
@@ -151,79 +194,52 @@ That mutation is the core falsification test for the project. If Certain cannot 
 
 ## Architecture
 
-```text
-Browser
-  |
-  | microphone -> WAV
-  v
-/api/transcribe
-  |
-  v
-AssemblyAI Dictation / Universal-3.5 Pro
-  |
-  | verbatim text + clean dictation + word confidence
-  v
-Field Mapper
-  |
-  | bounded payment_instruction/v1 fields
-  v
-Contract Engine
-  |-- deterministic type checks
-  |-- allowed sets
-  |-- regex constraints
-  |-- numeric bounds
-  |-- temporal constraints
-  `-- verification policy
-  |
-  v
-Preaccepted Specification
-  |-- canonical typed field comparison
-  `-- SHA-256 specification hash
-  |
-  v
-Fresh Challenge
-  `-- dedicated Dictation response + single-use token match
-  |
-  v
-Verification Engine
-  |-- confirm
-  `-- repeat_match
-  |
-  v
-Verification Receipt
-```
-
-## State model
+The two capabilities are parallel browser workspaces. They share adapters and typed primitives, but each starts from its own candidate input and maintains its own result state.
 
 ```text
-CAPTURED
-   |
-   v
-TRANSCRIBED
-   |
-   v
-VALIDATED
-   |\
-   | \ contract/specification violation
-   |  -> BLOCKED
-   |
-   | preaccepted specification MATCH
-   v
-FRESH_CHALLENGE
-   |\
-   | \ mismatch / expired / replay
-   |  -> remains unresolved
-   |
-   | matched freshness evidence
-   v
-REQUIRES_VERIFICATION
-   |
-   | amount repeat + invoice confirmation
-   v
-VERIFIED
+Capability 01: Verify a consequential action
+  microphone -> WAV -> /api/transcribe -> AssemblyAI Dictation
+  -> verbatim text + clean dictation + word confidence
+  -> Field Mapper -> payment_instruction/v1 fields
+  -> Contract Engine
+       |-- deterministic type checks
+       |-- allowed sets, regex, bounds, temporal constraints
+       `-- verification policy
+  -> Fresh Challenge -> repeat / confirm -> Verification Receipt
+
+Capability 02: Verify against a preaccepted specification
+  microphone -> WAV -> /api/transcribe -> AssemblyAI Dictation
+  -> verbatim text + clean dictation + word confidence
+  -> Field Mapper -> payment_instruction/v1 fields
+  -> Preaccepted Specification
+       |-- canonical typed field comparison
+       `-- SHA-256 specification hash
+  -> Comparison Result: MATCH / MISMATCH / INCOMPLETE
+
+Shared implementation mechanics do not share capability state.
 ```
 
-`VERIFIED` does not mean "true" and does not mean "authorized". It means the declared Certain contract and its required verification steps were satisfied.
+## State models
+
+Capability 01, consequential-action verification:
+
+```text
+CAPTURED -> TRANSCRIBED -> VALIDATED
+  | contract violation -> BLOCKED
+  | valid candidate -> FRESH_CHALLENGE
+  | challenge mismatch / expired / replay -> unresolved
+  | matched challenge -> REQUIRES_VERIFICATION
+  | amount repeat + invoice confirmation -> VERIFIED
+```
+
+Capability 02, preaccepted-specification verification:
+
+```text
+CANDIDATE_INPUT -> TYPED_FIELDS ->
+  MATCH / MISMATCH / INCOMPLETE
+```
+
+The two state machines accept separate candidate inputs and do not transition into each other. `VERIFIED` does not mean "true" and does not mean "authorized". It means the declared Certain contract and its required verification steps were satisfied.
 
 ## Repository layout
 
@@ -255,6 +271,14 @@ lib/
     verify.ts               # verification transitions
 __tests__/
   certain.test.ts
+research/
+  certain/
+    README.md
+    IMPLEMENTATION_NOTES.md
+  assemblyai/
+    README.md
+    FINAL_FOUNDRY_REPORT.md
+    FEEDBACK_LEDGER.md
 ```
 
 ## Scope

@@ -56,7 +56,9 @@ describe("fresh voice challenges", () => {
   it("rejects wrong content and wrong numeric content", () => {
     const challenge = generateVoiceChallenge(createdAt, 60_000);
     const wrong = evaluateVoiceChallenge(challenge, { text: "Confirm a different vendor, code one two blue." }, createdAt);
-    const wrongNumber = evaluateVoiceChallenge(challenge, { text: challenge.prompt.replace(/\b(one|two|three|four|five|six|seven|eight|nine|zero)\b/i, "nine") }, createdAt);
+    const wrongNumber = evaluateVoiceChallenge(challenge, {
+      text: challenge.prompt.replace(/\b(one|two|three|four|five|six|seven|eight|nine|zero)\b/i, (token) => token.toLowerCase() === "nine" ? "one" : "nine"),
+    }, createdAt);
 
     expect(wrong.result).toBe("CHALLENGE_MISMATCH");
     expect(wrongNumber.result).toBe("CHALLENGE_MISMATCH");

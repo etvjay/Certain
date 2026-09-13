@@ -1,6 +1,6 @@
 # AssemblyAI Evaluation Foundry
 
-This directory is an evidence-first audit of AssemblyAI as a platform. It is deliberately separate from the Certain product code.
+This directory is an evidence-first audit of AssemblyAI as a platform. It is deliberately separate from the Certain product code and from Certain's application-owned implementation notes in `../certain/`.
 
 The goal is not to collect opinions. The goal is to produce feedback AssemblyAI can independently reproduce.
 
