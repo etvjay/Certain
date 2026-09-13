@@ -49,7 +49,9 @@ falsification:
   condition: <what evidence would invalidate this feedback item>
 ```
 
-## Seeded research candidates
+## Historical Sync candidates
+
+These remain separate from the current Dictation findings and are not submission headlines for Dictation.
 
 ### AAI-FB-DOC-001
 
