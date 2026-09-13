@@ -12,6 +12,11 @@ export const paymentInstructionRecognitionContext = {
   keyterms_prompt: ["Acme Labs", "Northstar", "AssemblyAI", "Engineering", "Growth", "Operations"],
 } as const;
 
+export const voiceChallengeRecognitionContext = {
+  stt_prompt: "A short spoken confirmation challenge containing a vendor name, spoken digits, and a color.",
+  keyterms_prompt: ["Acme Labs", "Northstar", "AssemblyAI", "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "amber", "blue", "green", "orange", "purple", "violet"],
+} as const;
+
 export type DictationRecognitionContext = {
   stt_prompt?: string;
   keyterms_prompt?: string[];

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { transcribeWithAssemblyAI } from "@/lib/assemblyai";
+import { transcribeWithAssemblyAI, voiceChallengeRecognitionContext } from "@/lib/assemblyai";
 
 export const runtime = "nodejs";
 
@@ -16,7 +16,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "audio file is empty" }, { status: 400 });
     }
 
-    const transcript = await transcribeWithAssemblyAI(audio);
+    const challengeContext = form.get("purpose") === "challenge"
+      ? { stt_prompt: voiceChallengeRecognitionContext.stt_prompt, keyterms_prompt: [...voiceChallengeRecognitionContext.keyterms_prompt] }
+      : undefined;
+    const transcript = await transcribeWithAssemblyAI(audio, challengeContext);
     return NextResponse.json(transcript);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown transcription error";

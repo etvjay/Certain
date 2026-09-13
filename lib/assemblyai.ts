@@ -6,7 +6,7 @@ import {
   transcribeWithDictation,
 } from "./assemblyai/dictation";
 
-export { dictationEndpoint, paymentInstructionRecognitionContext, transcribeWithDictation } from "./assemblyai/dictation";
+export { dictationEndpoint, paymentInstructionRecognitionContext, transcribeWithDictation, voiceChallengeRecognitionContext } from "./assemblyai/dictation";
 export { syncEndpoint, transcribeWithSync } from "./assemblyai/sync";
 export type { DictationRecognitionContext as RecognitionContext } from "./assemblyai/dictation";
 

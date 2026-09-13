@@ -4,7 +4,7 @@
 .heard-note{font-size:12px;color:#77756c;margin-top:12px}
 .evidence-line{font-size:12px;color:#68675f;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;margin:8px 0 0}
 .verify-card{margin-top:18px}
-.verify-card ul{margin:12px 0 0;padding-left:20px;line-height:1.7}
+.challenge-card{margin-top:18px}.challenge-card h2{font-size:24px;margin:7px 0 12px}.challenge-prompt{margin:18px 0;font-size:24px;line-height:1.35;font-weight:700;color:#171714}.specification{border-top:1px solid #d9d7cf;margin-top:24px;padding-top:20px}.specification strong{font-size:14px}.spec-fields{display:grid;gap:8px;margin-top:14px}.spec-field{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#f4f2ec;border-radius:12px;padding:11px 12px}.spec-field span:first-child{margin:0}.spec-field strong{display:block;font-size:12px;font-weight:600;color:#5d5c55;overflow-wrap:anywhere}.spec-field .field-status{flex:0 0 auto}.verify-card ul{margin:12px 0 0;padding-left:20px;line-height:1.7}
 .receipt-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
 .receipt-grid div{background:#f4f2ec;border-radius:12px;padding:12px 14px}
 .receipt-grid dt{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#77756c}
@@ -13,7 +13,7 @@
 .receipt summary{cursor:pointer;font-weight:700;font-size:13px}
 .negative-card{margin-top:18px;border-style:dashed}
 .negative-card p{color:#5d5c55;line-height:1.55}
-@media(max-width:760px){.receipt-grid{grid-template-columns:1fr}}
+@media(max-width:760px){.receipt-grid{grid-template-columns:1fr}.spec-field{align-items:flex-start;flex-direction:column}.spec-field .field-status{align-self:flex-start}}
 .eval-actions{display:flex;gap:8px;flex-wrap:wrap}
 .eval-actions .secondary{margin-top:0}
 .secondary.danger{border-color:#d8a7a1;color:#83261f}
