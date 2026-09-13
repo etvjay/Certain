@@ -128,7 +128,7 @@ export function resolveWordSpan(target, words) {
       // Identifier fragments (INV14892 vs INV-14892) may fuse or split across
       // word boundaries; accept containment in either direction for tokens
       // longer than 3 characters to keep confidence attribution honest.
-      const fused = expected.length > 3 && (actual.includes(expected) || expected.includes(actual));
+      const fused = expected.length > 3 && actual.length > 3 && (actual.includes(expected) || expected.includes(actual));
       if (actual !== expected && !fused) {
         covers = false;
         break;
