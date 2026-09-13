@@ -18,6 +18,29 @@ These are defaults, not statistical guarantees.
 
 | Experiment | Question | Method | Evidence | Falsification / decision |
 |---|---|---|---|---|
+| D0 | Does the Dictation endpoint accept the documented correct request? | Raw HTTP with `config={}` first and the existing WAV second. | request order, status/body, response fields, timings, session ID | Close when 200 JSON and fields are retained. |
+| D1 | Is `config` actually required? | Raw HTTP audio-only request, one bounded attempt plus repeat if needed. | status/body and endpoint metadata | Classify against current docs; do not call it a bug without reproduction. |
+| D2 | Does wrong multipart order fail closed? | Raw HTTP audio first, config second. | status/body and endpoint metadata | Expected request rejection; document actual status. |
+| D3 | Does cleanup failure leave verbatim text usable? | Response fixture/live request with `llm_response:null` and `llm_error` set, or a naturally observed failure. | text, cleaned output, error, Certain decision | `text` remains usable; cleanup never satisfies verification. |
+| D4 | Does the documented unsupported format rejection hold? | One tiny controlled non-WAV/PCM request if safe. | status/body | Expected 415; no high-volume testing. |
+| AAI-DICT-CORPUS-001 | How does Dictation perform on the fixed human corpus? | Same SHA-verified 24-fixture corpus; 23 supported cases submitted, unsupported case held out. | per-fixture text/llm_response/words/confidence/timings + dual scorecard | Report corpus-bounded verbatim and cleaned metrics. |
+| AAI-DICT-PROMPT-001 | What incremental value comes from Dictation `stt_prompt` vs keyterms? | A0/A1/A2/A3 matched pairs on same human clips. | four responses per fixture + verbatim/cleaned scoring | Report effect only on this corpus. |
+| AAI-DICT-CORRECTION-001 | Does default cleanup resolve a spoken self-correction? | Existing self-correction fixture; compare verbatim `text` and cleaned `llm_response`. | both outputs + Certain candidate amount + verification state | Cleanup does not remove repeat requirement. |
+
+### Dictation evidence result — 2026-09-13
+
+- D0 passed: `config={}` first and WAV `audio` second returned HTTP 200 JSON with the documented response fields.
+- D1 returned HTTP 400 on 3/3 audio-only attempts.
+- D2 returned HTTP 400 on 3/3 audio-first/config-second attempts.
+- D3 returned HTTP 200 with both verbatim `text` and default cleaned `llm_response`; `llm_error` was `null` in the observed success.
+- D4 returned HTTP 415 for a tiny `audio/mpeg` payload.
+- The D1/D2 behavior is consistent with the API reference. The transcript-rewriting prose that says omitting the whole `config` part runs default cleanup remains a documentation inconsistency candidate.
+- Sanitized summary: `evidence/runs/dictation-semantics-live-20260913/summary.json`.
+
+## Historical Sync evidence
+
+The following experiments remain Sync-specific and must not be relabeled:
+
 | AAI-SYNC-001 | What exactly does a successful Sync response expose? | Run known WAV through raw HTTP harness. | request metadata, response, timings, session ID | Close when actual response shape is recorded. |
 | AAI-SYNC-002 | What happens below the 80 ms floor? | Generate/use sub-80 ms non-sensitive WAV and submit 3x. | HTTP status/body/session metadata | Do not label bug if error matches documented floor. Evaluate error clarity only. |
 | AAI-SYNC-003 | What happens around 120 s ceiling / 40 MB? | Boundary fixtures: valid-near-limit and invalid-over-limit where practical. | response/error + fixture metadata | Focus on semantics/diagnostics, not defeating limits. |

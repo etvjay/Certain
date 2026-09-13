@@ -2,7 +2,11 @@
 
 `evidence/runs/` is generated and gitignored by default.
 
-Each raw Sync run should contain:
+## Historical Sync runs
+
+Existing Sync runs remain preserved under their original run IDs. They are historical and must not be relabeled as Dictation evidence.
+
+Each raw Sync run contains:
 
 ```text
 <run-id>/
@@ -11,11 +15,9 @@ Each raw Sync run should contain:
 └── meta.json
 ```
 
-Prompting comparisons add a `summary.json` that points at the four arm directories.
-
 ## Human corpus runs
 
-`npm run eval:aai:human` writes one directory per run:
+`npm run eval:aai:human` uses the dedicated Dictation API by default. Pass `--api sync` only to reproduce the historical Sync surface.
 
 ```text
 <run-id>/
@@ -31,39 +33,62 @@ Prompting comparisons add a `summary.json` that points at the four arm directori
         └── scoring.json
 ```
 
-For `--compare-prompts`, the fixture directory contains `A0`/`A1`/`A2`/`A3`
-subdirectories with those four files instead. Matched prompting comparisons use
-the same audio SHA for every arm. Unsupported cases are recorded in the
-scorecard only; no request is made for them.
+For `--compare-prompts`, the fixture directory contains `A0`/`A1`/`A2`/`A3` subdirectories with those four files instead. Matched prompting comparisons use the same audio SHA for every arm. Unsupported cases are recorded in the scorecard only; no request is made for them.
+
+## `corpus.json`
+
+Identifies the evidence substrate explicitly:
+
+- `provider: assemblyai`;
+- `product: dictation` or `sync`;
+- endpoint;
+- model label;
+- arm configuration and selected fixture IDs.
 
 ## `request.json`
 
 Contains only sanitized request metadata:
 
+- provider and product;
 - audio filename;
-- audio SHA-256;
+- audio SHA-256 and bytes;
 - endpoint;
-- model;
-- prompt/keyterms/config;
-- experiment label.
+- model label;
+- config;
+- experiment and arm label.
 
-It must never contain the API key or Authorization header.
+Dictation request config is always recorded, including `{}`. It must never contain the API key or Authorization header.
 
 ## `response.json`
 
-Preserves the response body exactly as returned when it is valid JSON; otherwise preserves the text body in a wrapper.
+Preserves the provider response body exactly as returned when it is valid JSON; otherwise preserves the text body in a wrapper. Dictation responses retain `text`, `words`, `confidence`, `llm_response`, `llm_error`, `audio_duration_ms`, `session_id`, `request_time_ms`, and `sync_time_ms` when supplied.
 
 ## `meta.json`
 
 Records:
 
 - run ID/time;
+- provider and product;
 - HTTP status;
 - wall-clock duration;
-- Node/runtime platform;
-- AssemblyAI `session_id` when returned;
-- AssemblyAI `request_time_ms` when returned;
-- success/failure.
+- session ID;
+- request timing;
+- sync timing;
+- audio duration;
+- cleanup error;
+- success/failure;
+- Node/runtime platform.
+
+## `scoring.json`
+
+Dictation scoring keeps the two output surfaces separate:
+
+```text
+verbatim = provider text, with provider word evidence for confidence attribution
+cleaned  = provider llm_response, text-only target matching because rewrite text is not word-aligned
+```
+
+Certain uses only the verbatim `text` for contract evaluation. Cleaned output is informative metadata and cannot satisfy application verification.
 
 ## Promotion
 

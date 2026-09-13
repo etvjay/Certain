@@ -163,7 +163,7 @@ export function CertainDemo() {
         <div className="eyebrow">CERTAIN / payment_instruction:v1</div>
         <h1>Verified voice input for consequential actions.</h1>
         <p>AssemblyAI tells us what was heard. Certain decides whether the resulting input satisfies this application&rsquo;s contract.</p>
-        <p className="thesis">TRANSCRIBED &ne; VALID &ne; VERIFIED &ne; AUTHORIZED</p>
+        <p className="thesis">SPEECH &ne; VERBATIM TRANSCRIPT &ne; CLEAN DICTATION &ne; APPLICATION-VALID INPUT &ne; VERIFIED INPUT &ne; AUTHORIZED ACTION</p>
       </header>
 
       <section className="card">
@@ -202,15 +202,22 @@ export function CertainDemo() {
       {evaluation && (
         <section className="result-grid">
           <article className="card transcript">
-            <div className="eyebrow">3 / ASSEMBLYAI — WHAT WAS HEARD</div>
+            <div className="eyebrow">3 / ASSEMBLYAI DICTATION — WHAT WAS HEARD</div>
             <p className="quote">&ldquo;{evaluation.transcript.text}&rdquo;</p>
             <div className="meta">
               Confidence {evaluation.transcript.confidence?.toFixed(3) ?? "—"}
               {" · "}{evaluation.transcript.requestTimeMs ? `${Math.round(evaluation.transcript.requestTimeMs)}ms request` : "latency unavailable"}
               {evaluation.transcript.sessionId ? ` · session ${evaluation.transcript.sessionId.slice(0, 8)}…` : ""}
+              {evaluation.transcript.audioDurationMs ? ` · ${evaluation.transcript.audioDurationMs}ms audio` : ""}
               {simulated ? " · typed simulation, not a live transcription" : ""}
             </div>
             <p className="heard-note">Raw transcript, preserved verbatim. Certain never rewrites what AssemblyAI heard.</p>
+            {evaluation.transcript.cleanedText !== undefined && (
+              <p className="heard-note"><strong>Clean dictation (non-authoritative):</strong> &ldquo;{evaluation.transcript.cleanedText ?? "unavailable"}&rdquo;</p>
+            )}
+            {evaluation.transcript.llmError && (
+              <p className="heard-note">Dictation cleanup reported <strong>{evaluation.transcript.llmError}</strong>; Certain continues from the verbatim transcript.</p>
+            )}
           </article>
 
           <article className="card evaluation">

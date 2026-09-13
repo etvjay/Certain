@@ -50,6 +50,29 @@ Primary sources:
 - https://www.assemblyai.com/blog/speech-to-text-prompting-assemblyai-universal-3-pro
 - https://www.assemblyai.com/blog/build-push-to-talk-dictation-sync-api
 
+## Dictation API
+
+### Verified documented surface
+
+- Endpoint: `https://dictation.assemblyai.com/v1/transcribe/live`; US and EU hostnames are also documented.
+- Request shape: multipart/form-data with `config` first and `audio` second. `config` is always present; `{}` selects defaults.
+- Authentication: raw API key in `Authorization`, with no `Bearer` prefix. The documented invalid-key response is HTTP 404.
+- WAV or raw 16-bit PCM input, up to 120 seconds. Compressed formats are rejected.
+- `text` is the verbatim transcript and must never be replaced by the rewrite.
+- `llm_response` is an optional cleaned dictation; `llm_error` reports rewrite failure while the request can still return 200 with usable `text`.
+- Response includes `words`, overall `confidence`, `audio_duration_ms`, `session_id`, `request_time_ms`, and `sync_time_ms`.
+- `stt_prompt` describes the audio context; `keyterms_prompt` biases exact terms. Certain uses canonical `stt_prompt` and does not rely on the older `prompt` alias.
+
+### Certain boundary
+
+Certain evaluates application fields from Dictation `text` only. `llm_response` is retained and displayed as non-authoritative cleanup metadata. Cleanup does not satisfy amount repeat verification, invoice confirmation, or any other Certain contract requirement.
+
+Primary sources:
+
+- https://www.assemblyai.com/docs/api-reference/dictation-api/transcribe-live
+- https://www.assemblyai.com/docs/dictation/error-handling
+- https://www.assemblyai.com/docs/dictation/transcript-rewriting
+
 ## Streaming
 
 ### Verified documented surface
@@ -93,21 +116,33 @@ Primary sources:
 - https://www.assemblyai.com/products/llm-gateway
 - https://www.assemblyai.com/blog/reintroducing-llm-gateway
 
-## Documentation consistency candidates
+## Historical documentation candidates (Sync / older cross-product pages)
 
-These are **observations, not bugs**.
+These are retained for historical research and are **not current Dictation feedback**.
 
 ### DOC-CANDIDATE-001 — language-count wording
 
-Several current Sync/dictation pages describe 18 supported languages, while at least one current official voice-stack article says Sync runs across 19 languages. Before feedback, determine whether this reflects a real product change, different counting semantics, or stale prose.
+Older Sync/cross-product material varied between 18 and 19 language wording. The current Dictation language-selection page enumerates 19 codes, including Urdu. Retain the old question as historical documentation bookkeeping; do not present it as a current Dictation defect without a new conflicting primary source.
 
 ### DOC-CANDIDATE-002 — model alias naming
 
-Current official Sync examples use both `universal-3-5-pro` and `u3-sync-pro` in `X-AAI-Model`. Determine whether both are supported aliases and whether the API reference documents that equivalence clearly.
+Current official Sync examples use both `universal-3-5-pro` and `u3-sync-pro` in `X-AAI-Model`. This is Sync-specific and remains historical, not a Dictation submission headline.
 
 ### DOC-CANDIDATE-003 — streaming guidance age
 
-Some older official docs/examples refer to `u3-rt-pro` / Universal-3 Pro while newer material uses `universal-3-5-pro`. Do not call this stale until the currently linked documentation path and SDK behavior are checked.
+Some older official docs/examples refer to `u3-rt-pro` / Universal-3 Pro while newer material uses `universal-3-5-pro`. This remains a separate Streaming documentation question, not a Dictation claim.
+
+## Current Dictation observations
+
+The bounded live semantics run on 2026-09-13 used the existing `AAI-HUM-001.wav` and no retained credential values:
+
+- `D0`: `config={}` first and `audio` second returned HTTP 200 JSON with `text`, `words`, `confidence`, `audio_duration_ms`, `session_id`, `request_time_ms`, `llm_response`, `llm_error`, and `sync_time_ms`.
+- `D1`: audio-only returned HTTP 400 on 3/3 attempts.
+- `D2`: audio-first/config-second returned HTTP 400 on 3/3 attempts.
+- `D3`: the default rewrite returned alongside the verbatim text with `llm_error: null`.
+- `D4`: a tiny `audio/mpeg` request returned HTTP 415.
+
+The exact sanitized summary is retained at `evidence/runs/dictation-semantics-live-20260913/summary.json`; raw provider responses remain outside tracked source. D1/D2 support the documented request rule. The difference between the required-config wording and the transcript-rewriting prose is retained as a `DOC_GAP`/`INCONSISTENCY` candidate, not an API bug.
 
 ## Boundary for Certain
 

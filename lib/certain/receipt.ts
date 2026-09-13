@@ -20,10 +20,16 @@ export function createVerificationReceipt(
     status: evaluation.status,
     issuedAt: new Date().toISOString(),
     provenance: {
+      provider: evaluation.transcript.provider,
+      product: evaluation.transcript.product,
       transcript: evaluation.transcript.text,
+      cleanedText: evaluation.transcript.cleanedText,
+      llmError: evaluation.transcript.llmError,
       confidence: evaluation.transcript.confidence,
       sessionId: evaluation.transcript.sessionId,
       requestTimeMs: evaluation.transcript.requestTimeMs,
+      syncTimeMs: evaluation.transcript.syncTimeMs,
+      audioDurationMs: evaluation.transcript.audioDurationMs,
     },
     transcript: evaluation.transcript,
     fields: evaluation.fields.map((field) => ({

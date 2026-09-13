@@ -217,6 +217,40 @@ describe("Certain payment_instruction/v1", () => {
     expect(receipt.provenance.requestTimeMs).toBe(210.5);
   });
 
+  it("keeps Dictation product and cleanup provenance in the receipt", () => {
+    const heard = transcript(validText, {
+      provider: "assemblyai",
+      product: "dictation",
+      cleanedText: "Pay Acme Labs $15,000 against invoice INV-14892 from Growth next Friday.",
+      llmError: null,
+      syncTimeMs: 120,
+      audioDurationMs: 9216,
+      sessionId: "dictation-session",
+    });
+    const receipt = createVerificationReceipt(evaluatePaymentInstruction(heard, { referenceTime: REF }));
+    expect(receipt.provenance.provider).toBe("assemblyai");
+    expect(receipt.provenance.product).toBe("dictation");
+    expect(receipt.provenance.cleanedText).toContain("$15,000");
+    expect(receipt.provenance.syncTimeMs).toBe(120);
+    expect(receipt.provenance.audioDurationMs).toBe(9216);
+  });
+
+  it("keeps Dictation cleanup separate from the amount verification policy", () => {
+    const heard = transcript("Send 10,000 sorry 15,000 dollars to Notstar", {
+      provider: "assemblyai",
+      product: "dictation",
+      cleanedText: "Send 15,000 dollars to Notstar",
+      llmError: null,
+    });
+    const result = evaluatePaymentInstruction(heard, { referenceTime: REF });
+    const amount = result.fields.find((field) => field.field === "amount");
+    expect(heard.text).toBe("Send 10,000 sorry 15,000 dollars to Notstar");
+    expect(heard.cleanedText).toBe("Send 15,000 dollars to Notstar");
+    expect(amount?.value).toEqual({ amount: 15_000, currency: "USD" });
+    expect(amount?.status).toBe("requires_verification");
+    expect(result.status).toBe("blocked");
+  });
+
   it("never infers authorization from verification", () => {
     const result = evaluatePaymentInstruction(transcript(validText), { referenceTime: REF });
     const receipt = createVerificationReceipt(result);
@@ -253,7 +287,7 @@ describe("AssemblyAI boundary", () => {
     process.env.ASSEMBLYAI_API_KEY = "test-key-that-is-never-a-real-secret";
     globalThis.fetch = (async () =>
       new Response("upstream unavailable", { status: 503 })) as typeof fetch;
-    await expect(transcribeWithAssemblyAI(new Blob(["x"]))).rejects.toThrow("AssemblyAI Sync failed (503)");
+    await expect(transcribeWithAssemblyAI(new Blob(["x"]))).rejects.toThrow("AssemblyAI Dictation failed (503)");
   });
 
   it("never emits a VERIFIED receipt from a failed transcription", () => {

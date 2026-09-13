@@ -54,7 +54,8 @@ research/assemblyai/
 │   └── manifest.example.json
 ├── experiments/
 │   ├── sync/run-sync.mjs
-│   └── prompting/compare-prompts.mjs
+│   ├── prompting/compare-prompts.mjs
+│   └── human/run-corpus.mjs        # --api dictation (default) or --api sync
 └── evidence/
     └── README.md
 ```
@@ -65,14 +66,14 @@ Generated runs are written below `research/assemblyai/evidence/runs/` and are gi
 
 Priority order:
 
-1. Sync API response and failure semantics.
+1. Dictation API response and failure semantics.
 2. Universal-3.5 Pro contextual prompting.
 3. `keyterms_prompt` matched-pair tests.
 4. Numbers, amounts, names, IDs, URLs, and email addresses.
-5. Word-confidence calibration, especially confidently wrong consequential tokens.
-6. Raw HTTP vs JS integration/documentation parity.
-7. Regional endpoint parity and latency observations.
-8. One Streaming `UpdateConfiguration` experiment.
+5. Verbatim versus cleaned dictation scoring.
+6. Word-confidence review, especially confidently wrong consequential tokens.
+7. Raw HTTP vs JS integration/documentation parity.
+8. Preserve historical Sync evidence and compare only with explicit labels.
 9. Certain as a downstream consumer of the same evidence.
 
 ## Phase II
@@ -99,7 +100,18 @@ Set the key only in your shell or `.env.local`; never place it in a command comm
 export ASSEMBLYAI_API_KEY='...'
 ```
 
-Run a single Sync experiment:
+The human runner uses the dedicated Dictation API by default. Every Dictation request writes `config` first, then `audio`, and preserves both the verbatim `text` and cleaned `llm_response` separately.
+
+```bash
+npm run eval:aai:human -- \
+  --api dictation \
+  --manifest ./path/to/manifest.json \
+  --audio-dir ./path/to/audio
+```
+
+Use `--compare-prompts` with `--only` for a matched Dictation comparison. The runner scores verbatim and cleaned output separately. It accepts `--api sync` to reproduce the historical Sync path; do not mix those scorecards without explicit product labels.
+
+Run a single historical Sync experiment:
 
 ```bash
 npm run eval:aai:sync -- --audio ./research/assemblyai/fixtures/audio/sample.wav --label baseline
@@ -131,6 +143,7 @@ Run the human corpus (SHA-verified, scoring consequential target tokens):
 
 ```bash
 npm run eval:aai:human -- \
+  --api dictation \
   --manifest ./path/to/manifest.json \
   --audio-dir ./path/to/audio
 ```
@@ -140,6 +153,29 @@ matched prompting comparison on fixed fixtures with `--compare-prompts --only
 AAI-HUM-003,AAI-HUM-015,AAI-HUM-023 --prompt "..." --keyterm OpenRails
 --keyterm Prism`. Unsupported fixtures are separated from supported scoring
 and never submitted.
+
+## Dictation semantic checks
+
+The bounded Dictation request matrix is:
+
+- `D0` correct request: `config={}` first, WAV second, expect 200 JSON.
+- `D1` missing config: audio-only request, record the documented endpoint response.
+- `D2` wrong order: audio first, config second, record the documented endpoint response.
+- `D3` default cleanup: preserve `text`, `llm_response`, and `llm_error` independently.
+- `D4` unsupported format: use one tiny controlled non-WAV/PCM sample only if needed; expect the documented 415 behavior.
+
+A cleanup failure is not a transcription failure when `text` is present. Certain's contract input remains the verbatim `text`; cleaned output is an additional, non-authoritative surface. The human runner stores both scoring surfaces without mixing them.
+
+### Observed Dictation evidence — 2026-09-13
+
+- Full baseline: 23 supported human fixtures, 0 HTTP failures, 0 SHA refusals, and `AAI-HUM-024` separated as unsupported Pidgin.
+- Verbatim baseline: 19/50 exact target-token matches and 27/50 normalized matches.
+- Cleaned baseline: 23/23 fixtures returned `llm_response`; 19/50 exact and 27/50 normalized matches.
+- Matched contextual run on `AAI-HUM-003`, `AAI-HUM-015`, and `AAI-HUM-023`: A0 4/8, A1 8/8, A2 7/8, A3 7/8 exact verbatim target matches. Every fixture used the same audio SHA in all four arms.
+- Payment-context run on `AAI-HUM-001`: A0 2/5, A1 3/5, A2 3/5, A3 4/5 exact verbatim target matches.
+- Self-correction fixture `AAI-HUM-004`: verbatim was `Send 10,000 sorry 15,000 dollars to Notstar`; cleaned output was `Send 15,000 dollars to Notstar`. Certain still keeps the parsed `$15,000 USD` amount at `repeat_match`; the overall input is blocked because the vendor and other required fields are not valid.
+
+The run roots are local generated evidence under `research/assemblyai/evidence/runs/`; they are gitignored because provider responses contain transcript text. These figures are corpus-bounded observations, not general accuracy claims.
 
 ## Submission gate
 

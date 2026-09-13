@@ -8,10 +8,10 @@ The project is intentionally small. It is not another transcription app, not a v
 
 ## Thesis
 
-Voice systems often collapse four different states into one:
+Voice systems often collapse distinct stages into one:
 
 ```text
-TRANSCRIBED != VALID != VERIFIED != AUTHORIZED
+SPEECH != VERBATIM TRANSCRIPT != CLEAN DICTATION != APPLICATION-VALID INPUT != VERIFIED INPUT != AUTHORIZED ACTION
 ```
 
 A transcript can be perfectly recognized and still be invalid for an application. An amount can exceed a limit. An invoice ID can violate a required pattern. A recipient can be outside an allowed set. A field can require explicit repeat verification even when recognition confidence is high.
@@ -20,7 +20,8 @@ Certain makes that boundary explicit.
 
 ```text
 speech
-  -> AssemblyAI Sync
+  -> AssemblyAI Dictation
+  -> verbatim transcript + clean dictation
   -> typed field mapping
   -> application contract
   -> verification requirements
@@ -34,20 +35,22 @@ Certain deliberately does **not** reimplement AssemblyAI capabilities.
 
 AssemblyAI provides the recognition substrate:
 
-- Sync Speech-to-Text for short push-to-talk clips;
-- Universal-3.5 Pro;
+- Dictation API on Universal-3.5 Pro for short push-to-talk utterances;
+- verbatim transcript in `text`;
+- optional cleaned dictation in `llm_response`;
 - transcript and per-word confidence;
-- contextual `prompt`;
+- contextual `stt_prompt`;
 - `keyterms_prompt` for domain vocabulary;
 - language support and formatting.
 
-Certain begins **after recognition**. Its responsibility is application-specific validity and verification policy.
+Certain begins **after recognition**. Its responsibility is application-specific validity and verification policy. Certain evaluates the verbatim `text`; Dictation cleanup is displayed separately and never silently replaces the evidence.
 
-AssemblyAI Sync docs and current dictation guide:
+AssemblyAI Dictation documentation:
 
-- https://www.assemblyai.com/blog/build-push-to-talk-dictation-sync-api
-- https://www.assemblyai.com/blog/sync-speech-to-text-api-technical-walkthrough
-- https://www.assemblyai.com/docs/faq/how-can-i-make-certain-words-more-likely-to-be-transcribed
+- https://www.assemblyai.com/docs/api-reference/dictation-api/transcribe-live
+- https://www.assemblyai.com/docs/dictation/error-handling
+- https://www.assemblyai.com/docs/dictation/transcript-rewriting
+- https://www.assemblyai.com/docs/dictation/prompting-and-keyterms
 
 ## Weekend proof
 
@@ -130,9 +133,9 @@ Browser
 /api/transcribe
   |
   v
-AssemblyAI Sync / Universal-3.5 Pro
+AssemblyAI Dictation / Universal-3.5 Pro
   |
-  | transcript + word confidence
+  | verbatim text + clean dictation + word confidence
   v
 Field Mapper
   |
@@ -193,7 +196,10 @@ components/
 hooks/
   useRecorder.ts            # microphone capture + WAV conversion
 lib/
-  assemblyai.ts
+  assemblyai.ts                 # Dictation product entry point
+  assemblyai/
+    dictation.ts                # production Dictation adapter
+    sync.ts                     # historical Sync adapter
   certain/
     contract.ts             # payment_instruction/v1
     extract.ts              # bounded transcript -> typed fields
@@ -211,7 +217,7 @@ __tests__/
 ### Necessary for the primitive
 
 - short push-to-talk capture;
-- AssemblyAI Sync transcription;
+- AssemblyAI Dictation transcription;
 - one declarative application contract;
 - bounded field mapping;
 - deterministic contract evaluation;

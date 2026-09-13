@@ -12,10 +12,16 @@ export interface TranscriptWord {
 
 export interface TranscriptEvidence {
   text: string;
+  cleanedText?: string | null;
+  llmError?: string | null;
   confidence?: number;
   words?: TranscriptWord[];
   sessionId?: string;
   requestTimeMs?: number;
+  syncTimeMs?: number;
+  audioDurationMs?: number;
+  provider?: "assemblyai";
+  product?: "sync" | "dictation";
 }
 
 export interface PaymentInstruction {
@@ -60,10 +66,16 @@ export interface VerificationReceipt {
   status: EvaluationStatus;
   issuedAt: string;
   provenance: {
+    provider?: "assemblyai";
+    product?: "sync" | "dictation";
     transcript: string;
+    cleanedText?: string | null;
+    llmError?: string | null;
     confidence?: number;
     sessionId?: string;
     requestTimeMs?: number;
+    syncTimeMs?: number;
+    audioDurationMs?: number;
   };
   transcript: TranscriptEvidence;
   fields: FieldEvaluation[];
