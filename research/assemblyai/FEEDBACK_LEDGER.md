@@ -68,6 +68,7 @@ falsification:
 - Do not submit yet.
 - Next action: run exact same fixture under both names and inspect current reference docs for alias semantics.
 - Falsification: aliases are explicitly documented and behave equivalently.
+- Live observation 2026-09-12 (run 34686061337, synthetic eSpeak domain clip, single utterance, NOT submission evidence): both aliases returned HTTP 200 with byte-identical transcript text (`Move the mandate into open rail and attach the Prism execution receipt.`), sessions `c617fe71-...` and `0536cca4-...`. Consistent with the falsification condition, not proof of it.
 
 ## Quality-feedback rule
 

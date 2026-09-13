@@ -10,7 +10,8 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "eval:aai:sync": "node research/assemblyai/experiments/sync/run-sync.mjs",
-    "eval:aai:prompt": "node research/assemblyai/experiments/prompting/compare-prompts.mjs"
+    "eval:aai:prompt": "node research/assemblyai/experiments/prompting/compare-prompts.mjs",
+    "eval:aai:human": "node research/assemblyai/experiments/human/run-corpus.mjs"
   },
   "dependencies": {
     "next": "16.3.4",

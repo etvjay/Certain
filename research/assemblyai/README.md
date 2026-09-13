@@ -127,6 +127,20 @@ A3  prompt + keyterms
 
 This is a matched-pair design. Do not substitute different recordings between arms.
 
+Run the human corpus (SHA-verified, scoring consequential target tokens):
+
+```bash
+npm run eval:aai:human -- \
+  --manifest ./path/to/manifest.json \
+  --audio-dir ./path/to/audio
+```
+
+Validate an export without spending API calls with `--dry-run`. Run a bounded
+matched prompting comparison on fixed fixtures with `--compare-prompts --only
+AAI-HUM-003,AAI-HUM-015,AAI-HUM-023 --prompt "..." --keyterm OpenRails
+--keyterm Prism`. Unsupported fixtures are separated from supported scoring
+and never submitted.
+
 ## Submission gate
 
 A feedback candidate must have:

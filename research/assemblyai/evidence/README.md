@@ -13,6 +13,29 @@ Each raw Sync run should contain:
 
 Prompting comparisons add a `summary.json` that points at the four arm directories.
 
+## Human corpus runs
+
+`npm run eval:aai:human` writes one directory per run:
+
+```text
+<run-id>/
+├── corpus.json
+├── observations.json
+├── scorecard.json
+├── report.md
+└── fixtures/
+    └── AAI-HUM-001/
+        ├── request.json
+        ├── response.json
+        ├── meta.json
+        └── scoring.json
+```
+
+For `--compare-prompts`, the fixture directory contains `A0`/`A1`/`A2`/`A3`
+subdirectories with those four files instead. Matched prompting comparisons use
+the same audio SHA for every arm. Unsupported cases are recorded in the
+scorecard only; no request is made for them.
+
 ## `request.json`
 
 Contains only sanitized request metadata:

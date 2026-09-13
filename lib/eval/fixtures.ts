@@ -1,3 +1,6 @@
+export const HUMAN_CORPUS_ID = "certain-aai-human-phase1-v1";
+export const HUMAN_CORPUS_TRUTH_FREEZE = "2026-09-12";
+
 export type EvaluationFixture = {
   id: string;
   groundTruth: string;

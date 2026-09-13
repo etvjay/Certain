@@ -11,8 +11,9 @@ export function wordsToNumber(input: string): number | null {
 
   const tokens = input
     .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, " ")
     .replace(/\b(?:dollars?|usd|and)\b|,/g, " ")
-    .split(/\s+/)
+    .split(/[\s-]+/)
     .filter(Boolean);
 
   let total = 0;

@@ -2,6 +2,9 @@ export type VerificationRule = "none" | "required" | "repeat_match" | "on_uncert
 export type FieldStatus = "accepted" | "requires_verification" | "verified" | "blocked";
 export type EvaluationStatus = "accepted" | "requires_verification" | "verified" | "blocked";
 
+import type { DueDate } from "./dates";
+export type { DueDate } from "./dates";
+
 export interface TranscriptWord {
   text: string;
   confidence: number;
@@ -20,7 +23,7 @@ export interface PaymentInstruction {
   amount?: { amount: number; currency: "USD" };
   invoiceId?: string;
   costCenter?: string;
-  dueDate?: string;
+  dueDate?: DueDate;
 }
 
 export interface FieldEvaluation<T = unknown> {
@@ -56,7 +59,19 @@ export interface VerificationReceipt {
   contractVersion: string;
   status: EvaluationStatus;
   issuedAt: string;
+  provenance: {
+    transcript: string;
+    confidence?: number;
+    sessionId?: string;
+    requestTimeMs?: number;
+  };
   transcript: TranscriptEvidence;
   fields: FieldEvaluation[];
-  verification: VerificationEvidence[];
+  verification: Array<
+    VerificationEvidence & {
+      sessionId?: string;
+      requestTimeMs?: number;
+    }
+  >;
+  meaning: string;
 }

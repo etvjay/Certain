@@ -1,4 +1,5 @@
 import { paymentInstructionContract } from "./contract";
+import { resolveDueDate } from "./dates";
 import { normalizeMoney } from "./normalize";
 import type { PaymentInstruction } from "./types";
 
@@ -25,7 +26,10 @@ function extractAmount(text: string) {
   return undefined;
 }
 
-export function extractPaymentInstruction(text: string): PaymentInstruction {
+export function extractPaymentInstruction(
+  text: string,
+  options: { referenceTime?: Date | string | number } = {},
+): PaymentInstruction {
   const vendor = findAllowed(text, paymentInstructionContract.vendors);
   const costCenter = findAllowed(text, paymentInstructionContract.costCenters);
 
@@ -33,9 +37,7 @@ export function extractPaymentInstruction(text: string): PaymentInstruction {
   const invoiceId = invoiceMatch ? `INV-${invoiceMatch[1].toUpperCase()}` : undefined;
   const amount = extractAmount(text);
 
-  const nextFriday = /\bnext\s+friday\b/i.test(text) ? "next Friday" : undefined;
-  const friday = !nextFriday && /\bfriday\b/i.test(text) ? "Friday" : undefined;
-  const dueDate = nextFriday ?? friday;
+  const dueDate = resolveDueDate(text, options.referenceTime ?? new Date());
 
   return { vendor, amount, invoiceId, costCenter, dueDate };
 }

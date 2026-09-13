@@ -1,4 +1,5 @@
 import { paymentInstructionContract as contract } from "./contract";
+import { isFutureDate } from "./dates";
 import { extractPaymentInstruction } from "./extract";
 import type { ContractEvaluation, FieldEvaluation, TranscriptEvidence } from "./types";
 
@@ -10,8 +11,12 @@ function fieldConfidence(transcript: TranscriptEvidence, value?: string): number
   return Math.min(...matching.map((word) => word.confidence));
 }
 
-export function evaluatePaymentInstruction(transcript: TranscriptEvidence): ContractEvaluation {
-  const data = extractPaymentInstruction(transcript.text);
+export function evaluatePaymentInstruction(
+  transcript: TranscriptEvidence,
+  options: { referenceTime?: Date | string | number } = {},
+): ContractEvaluation {
+  const referenceTime = options.referenceTime ?? new Date();
+  const data = extractPaymentInstruction(transcript.text, { referenceTime });
   const fields: FieldEvaluation[] = [];
 
   const vendorViolations = data.vendor ? [] : ["Vendor is missing or not in the allowed vendor set."];
@@ -52,8 +57,11 @@ export function evaluatePaymentInstruction(transcript: TranscriptEvidence): Cont
   const costViolations = data.costCenter ? [] : ["Cost center is missing or not allowed."];
   fields.push({ field: "costCenter", value: data.costCenter, rule: contract.costCenter.verification, status: costViolations.length ? "blocked" : "accepted", evidence: data.costCenter ? [`allowed_set:${data.costCenter}`] : [], violations: costViolations });
 
-  const dateViolations = data.dueDate ? [] : ["Due date is missing or unsupported by the bounded demo parser."];
-  fields.push({ field: "dueDate", value: data.dueDate, rule: contract.dueDate.verification, status: dateViolations.length ? "blocked" : "accepted", evidence: data.dueDate ? ["temporal_constraint:future_only"] : [], violations: dateViolations });
+  const dateViolations: string[] = [];
+  if (!data.dueDate) dateViolations.push("Due date is missing or unsupported by the bounded demo parser.");
+  else if (contract.dueDate.futureOnly && !isFutureDate(data.dueDate, referenceTime))
+    dateViolations.push(`Due date ${data.dueDate.iso} is not in the future.`);
+  fields.push({ field: "dueDate", value: data.dueDate, rule: contract.dueDate.verification, status: dateViolations.length ? "blocked" : "accepted", evidence: data.dueDate ? [`canonical_date:${data.dueDate.iso}`, "temporal_constraint:future_only"] : [], violations: dateViolations });
 
   const violations = fields.flatMap((field) => field.violations);
   const status = violations.length ? "blocked" : fields.some((field) => field.status === "requires_verification") ? "requires_verification" : "accepted";
